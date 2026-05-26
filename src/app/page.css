@@ -1,0 +1,104 @@
+/* page.css – premium, vibrant design */
+:root {
+  /* Color palette – curated, not plain primary colors */
+  --clr-bg: hsl(210, 30%, 4%);
+  --clr-surface: hsl(210, 30%, 8%);
+  --clr-primary: hsl(200, 80%, 60%);
+  --clr-primary-dark: hsl(200, 80%, 45%);
+  --clr-accent: hsl(340, 80%, 60%);
+  --clr-text: hsl(0, 0%, 90%);
+  --clr-muted: hsl(210, 15%, 50%);
+}
+
+/* Global reset (you can move this to a global CSS file if you have one) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Page layout */
+.home {
+  min-height: 100vh;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-family: "Inter", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Header */
+.home__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.home__title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  background: linear-gradient(45deg, var(--clr-primary), var(--clr-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.home__subtitle {
+  margin-top: 0.5rem;
+  color: var(--clr-muted);
+}
+
+/* List of tournaments */
+.home__list {
+  list-style: none;
+  width: 100%;
+  max-width: 800px;
+  display: grid;
+  gap: 1.5rem;
+}
+.home__item {
+  background: var(--clr-surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.2),
+    inset 0 0 0 1px hsla(0,0%,100%,0.02);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.home__item:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 12px rgba(0,0,0,0.25),
+    inset 0 0 0 1px hsla(0,0%,100%,0.04);
+}
+.home__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 1.5rem;
+}
+.home__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.home__name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.home__date {
+  color: var(--clr-muted);
+  font-size: 0.9rem;
+}
+.home__status {
+  align-self: start;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+}
+.home__status--draft { background: hsl(200, 30%, 30%); color: var(--clr-text); }
+.home__status--registration_open { background: var(--clr-primary); color: #fff; }
+.home__status--in_progress { background: var(--clr-accent); color: #fff; }
+.home__status--completed { background: hsl(120, 30%, 30%); color: var(--clr-text); }
+.home__status--cancelled { background: hsl(0, 30%, 30%); color: var(--clr-text); }

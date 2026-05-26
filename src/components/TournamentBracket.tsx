@@ -1,13 +1,11 @@
 "use client";
 
 import React from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { Trophy } from "lucide-react";
 
 // --- Utilities ---
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+function cn(...inputs: (string | boolean | undefined | null)[]) {
+  return inputs.filter(Boolean).join(" ");
 }
 
 function getRoundName(round: number, totalRounds: number) {

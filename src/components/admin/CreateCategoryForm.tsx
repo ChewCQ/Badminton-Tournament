@@ -7,11 +7,9 @@ import { createCategorySchema, type CreateCategoryInput } from "@/lib/validation
 import { createCategory } from "@/lib/actions/category";
 import { CategoryType, TournamentFormat } from "@prisma/client";
 import { Plus, AlertCircle, CheckCircle2, Loader2, Info } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+function cn(...inputs: (string | boolean | undefined | null)[]) {
+  return inputs.filter(Boolean).join(" ");
 }
 
 export const CreateCategoryForm = ({ tournamentId, onSuccess }: { tournamentId: string; onSuccess?: () => void }) => {

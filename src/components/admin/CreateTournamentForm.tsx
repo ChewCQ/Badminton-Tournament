@@ -6,11 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createTournamentSchema, type CreateTournamentInput } from "@/lib/validations/tournament";
 import { createTournament } from "@/lib/actions/tournament";
 import { Calendar, Clock, Trophy, Layers, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+function cn(...inputs: (string | boolean | undefined | null)[]) {
+  return inputs.filter(Boolean).join(" ");
 }
 
 export const CreateTournamentForm = ({ onSuccess }: { onSuccess?: () => void }) => {

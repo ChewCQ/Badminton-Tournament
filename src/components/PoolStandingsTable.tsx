@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { calculatePoolStandings } from "@/lib/utils/standings";
 import type { MatchResult } from "@/lib/scheduler/types";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+function cn(...inputs: (string | boolean | undefined | null)[]) {
+  return inputs.filter(Boolean).join(" ");
 }
 
 // --- Types ---
