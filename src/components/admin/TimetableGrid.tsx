@@ -8,7 +8,7 @@ import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
 
 // Types
-interface Participant { name: string; teamName?: string | null; }
+interface Participant { id: string; name: string; teamName?: string | null; }
 interface Category { name: string; id: string; bestOf: number }
 interface MatchSet {
   setNumber: number;

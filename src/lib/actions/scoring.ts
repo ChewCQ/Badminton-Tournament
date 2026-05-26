@@ -98,3 +98,44 @@ export async function saveMatchScore(
     return { success: false, error: "Failed to save score" };
   }
 }
+
+export async function markWalkover(
+  matchId: string,
+  tournamentId: string,
+  winnerParticipantId: string,
+  reason: "WALKOVER" | "BYE" | "CANCELLED"
+) {
+  try {
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+    });
+
+    if (!match) return { success: false, error: "Match not found" };
+
+    await prisma.$transaction(async (tx) => {
+      // Set status and winner
+      await tx.match.update({
+        where: { id: matchId },
+        data: {
+          status: reason,
+          winnerId: winnerParticipantId,
+        }
+      });
+
+      // Advance winner to next match
+      if (match.nextMatchId && match.nextMatchSlot) {
+        const updateField = match.nextMatchSlot === "SLOT_1" ? "participant1Id" : "participant2Id";
+        await tx.match.update({
+          where: { id: match.nextMatchId },
+          data: { [updateField]: winnerParticipantId }
+        });
+      }
+    });
+
+    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to mark walkover:", error);
+    return { success: false, error: "Failed to mark walkover" };
+  }
+}

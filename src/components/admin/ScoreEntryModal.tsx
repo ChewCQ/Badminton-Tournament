@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { saveMatchScore } from "@/lib/actions/scoring";
+import { saveMatchScore, markWalkover } from "@/lib/actions/scoring";
 import { useRouter } from "next/navigation";
 import { X, Trophy, Loader2 } from "lucide-react";
 
@@ -13,8 +13,8 @@ interface SetScore {
 
 interface MatchForScoring {
   id: string;
-  participant1: { name: string } | null;
-  participant2: { name: string } | null;
+  participant1: { id: string; name: string } | null;
+  participant2: { id: string; name: string } | null;
   category: { name: string; bestOf: number };
   sets: { setNumber: number; score1: number; score2: number }[];
   status: string;
@@ -78,6 +78,17 @@ export function ScoreEntryModal({
   const handleSave = () => {
     startTransition(async () => {
       await saveMatchScore(match.id, tournamentId, scores);
+      onClose();
+      router.refresh();
+    });
+  };
+
+  const handleSpecialWin = (winnerId: string, reason: "WALKOVER" | "BYE" | "CANCELLED") => {
+    const confirmAction = confirm(`Are you sure you want to mark this match as a ${reason}? This cannot be easily undone.`);
+    if (!confirmAction) return;
+    
+    startTransition(async () => {
+      await markWalkover(match.id, tournamentId, winnerId, reason);
       onClose();
       router.refresh();
     });
@@ -184,12 +195,35 @@ export function ScoreEntryModal({
           )}
         </div>
 
+        {/* Special Outcomes */}
+        {(match.participant1 && match.participant2) && (
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Special Outcomes</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleSpecialWin(match.participant1!.id, "WALKOVER")}
+                disabled={isPending}
+                className="px-3 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-600 rounded-lg hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors shadow-sm"
+              >
+                P2 Disqualified / Walkover (P1 Wins)
+              </button>
+              <button
+                onClick={() => handleSpecialWin(match.participant2!.id, "WALKOVER")}
+                disabled={isPending}
+                className="px-3 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-600 rounded-lg hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors shadow-sm"
+              >
+                P1 Disqualified / Walkover (P2 Wins)
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
           <button
             onClick={onClose}
             disabled={isPending}
-            className="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+            className="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
           >
             Cancel
           </button>

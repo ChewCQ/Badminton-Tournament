@@ -17,14 +17,21 @@ interface TournamentData {
   restPeriodMinutes: number;
 }
 
+const toLocalDatetimeString = (dateInput: Date | string) => {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 export function TournamentSettingsForm({ tournament }: { tournament: TournamentData }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
     name: tournament.name,
-    startDate: new Date(tournament.startDate).toISOString().slice(0, 16),
-    endDate: tournament.endDate ? new Date(tournament.endDate).toISOString().slice(0, 16) : "",
+    startDate: toLocalDatetimeString(tournament.startDate),
+    endDate: tournament.endDate ? toLocalDatetimeString(tournament.endDate) : "",
     status: tournament.status,
     numberOfCourts: tournament.numberOfCourts,
     estimatedMatchDurationMinutes: tournament.estimatedMatchDurationMinutes,
