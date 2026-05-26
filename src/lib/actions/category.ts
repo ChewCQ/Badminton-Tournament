@@ -60,3 +60,30 @@ export async function createCategory(data: CreateCategoryInput) {
     return { success: false, error: "An unexpected error occurred while creating the category." };
   }
 }
+
+export async function deleteCategory(tournamentId: string, categoryId: string) {
+  try {
+    const category = await prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        tournamentId,
+      },
+    });
+
+    if (!category) {
+      return { success: false, error: "Category not found." };
+    }
+
+    await prisma.category.delete({
+      where: { id: categoryId },
+    });
+
+    revalidatePath(`/admin/tournaments/${tournamentId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete category:", error);
+    return { success: false, error: "An unexpected error occurred while deleting the category." };
+  }
+}
+

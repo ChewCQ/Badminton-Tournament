@@ -5,6 +5,7 @@ import { CreateCategoryForm } from "@/components/admin/CreateCategoryForm";
 import { GenerateScheduleButton } from "@/components/admin/GenerateScheduleButton";
 import { TournamentSettingsCard } from "@/components/admin/TournamentSettingsCard";
 import { TournamentQRCode } from "@/components/admin/TournamentQRCode";
+import { DeleteCategoryButton } from "@/components/admin/DeleteCategoryButton";
 import { Users, Layers, Activity, Calendar, LayoutGrid, Clock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -165,7 +166,14 @@ export default async function TournamentDetailsPage({
                         )}
                       </div>
                     )}
+                    <DeleteCategoryButton
+                      tournamentId={tournament.id}
+                      categoryId={category.id}
+                      categoryName={category.name}
+                      hasMatches={category._count.matches > 0}
+                    />
                   </div>
+
                 </div>
               ))
             )}
