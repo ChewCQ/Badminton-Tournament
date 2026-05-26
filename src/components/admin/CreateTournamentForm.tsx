@@ -48,7 +48,12 @@ export const CreateTournamentForm = ({ onSuccess }: { onSuccess?: () => void }) 
     setServerSuccess(false);
 
     try {
-      const result = await createTournament(data);
+      const payload = {
+        ...data,
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined
+      };
+      const result = await createTournament(payload);
       if (result.success) {
         setServerSuccess(true);
         reset();

@@ -23,8 +23,8 @@ export function TournamentSettingsForm({ tournament }: { tournament: TournamentD
 
   const [formData, setFormData] = useState({
     name: tournament.name,
-    startDate: new Date(tournament.startDate).toISOString().split('T')[0],
-    endDate: tournament.endDate ? new Date(tournament.endDate).toISOString().split('T')[0] : "",
+    startDate: new Date(tournament.startDate).toISOString().slice(0, 16),
+    endDate: tournament.endDate ? new Date(tournament.endDate).toISOString().slice(0, 16) : "",
     status: tournament.status,
     numberOfCourts: tournament.numberOfCourts,
     estimatedMatchDurationMinutes: tournament.estimatedMatchDurationMinutes,
@@ -103,9 +103,9 @@ export function TournamentSettingsForm({ tournament }: { tournament: TournamentD
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Start Date</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Start Date & Time</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
@@ -113,9 +113,9 @@ export function TournamentSettingsForm({ tournament }: { tournament: TournamentD
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">End Date (Optional)</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">End Date & Time (Optional)</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}

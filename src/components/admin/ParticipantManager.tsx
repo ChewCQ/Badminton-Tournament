@@ -110,7 +110,7 @@ export function ParticipantManager({
                               type="text"
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
-                              className="w-full border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                           </td>
                           <td className="py-3 px-4">
@@ -118,7 +118,7 @@ export function ParticipantManager({
                               type="text"
                               value={editTeam}
                               onChange={(e) => setEditTeam(e.target.value)}
-                              className="w-full border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                               placeholder="None"
                             />
                           </td>

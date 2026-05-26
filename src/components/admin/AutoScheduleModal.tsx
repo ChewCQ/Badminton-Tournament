@@ -65,7 +65,7 @@ export function AutoScheduleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-indigo-600 p-6 text-white text-center">
           <h2 className="text-2xl font-black tracking-tight">Global Auto-Scheduler</h2>
