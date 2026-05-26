@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Badminton Tournament Manager",
+  title: "HEXA Badminton Tournament",
   description: "Modern badminton tournament management platform",
 };
 

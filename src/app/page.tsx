@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 
 export const metadata = {
-  title: "Badminton Tournament Manager",
+  title: "HEXA Badminton Tournament",
   description: "Browse and manage badminton tournaments",
 };
 
@@ -23,7 +23,7 @@ export default async function HomePage() {
     <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-start p-6 md:p-12 font-sans selection:bg-indigo-100 selection:text-indigo-900">
       <header className="text-center mb-10 w-full max-w-4xl">
         <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight drop-shadow-sm mb-3">
-          🏸 Badminton Tournament Manager
+          🏸 HEXA Badminton Tournament
         </h1>
         <p className="text-slate-500 text-sm md:text-base font-medium">
           Pick a tournament to view live courts, brackets, and draws.
