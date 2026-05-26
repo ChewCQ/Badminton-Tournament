@@ -75,12 +75,12 @@ export default async function HomePage() {
       )}
 
       <footer className="mt-auto pt-16 pb-4 w-full text-center">
-        <Link 
+        <a 
           href="/admin" 
           className="text-xs text-slate-300 hover:text-slate-500 transition-colors font-medium"
         >
           Admin Login
-        </Link>
+        </a>
       </footer>
     </main>
   );
