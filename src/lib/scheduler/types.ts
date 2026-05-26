@@ -16,11 +16,11 @@ export interface GeneratedMatch {
   participant1Id: string | null;
   participant2Id: string | null;
   roundNumber: number;
-  poolId?: string;
-  bracketRound?: number;
-  bracketPosition?: number;
-  nextMatchId?: string;
-  nextMatchSlot?: 'SLOT_1' | 'SLOT_2';
+  poolId?: string | null;
+  bracketRound?: number | null;
+  bracketPosition?: number | null;
+  nextMatchId?: string | null;
+  nextMatchSlot?: 'SLOT_1' | 'SLOT_2' | null;
   isBye?: boolean;
 }
 

@@ -9,8 +9,8 @@ export const createTournamentSchema = z.object({
     message: "Invalid end date",
   }),
   numberOfCourts: z.coerce.number().min(1, "Must have at least 1 court").max(50),
-  estimatedMatchDurationMinutes: z.coerce.number().min(10).max(120).default(30),
-  restPeriodMinutes: z.coerce.number().min(0).max(120).default(20),
+  estimatedMatchDurationMinutes: z.coerce.number().min(10).max(120),
+  restPeriodMinutes: z.coerce.number().min(0).max(120),
 });
 
 export type CreateTournamentInput = z.infer<typeof createTournamentSchema>;
@@ -25,7 +25,7 @@ export const CreateTournamentSchema = z.object({
   restPeriodMinutes: z.number().int().min(0),
   categories: z.array(z.object({
     name: z.string(),
-    type: z.enum(["MENS_SINGLES", "WOMENS_SINGLES", "MENS_DOUBLES", "WOMENS_DOUBLES", "MIXED_DOUBLES"]),
+    type: z.enum(["SINGLES", "DOUBLES", "MIXED_DOUBLES"]),
     format: z.enum(["ROUND_ROBIN", "KNOCKOUT", "POOL_TO_BRACKET"]),
     poolSize: z.number().int().default(4),
     advanceCount: z.number().int().default(2),

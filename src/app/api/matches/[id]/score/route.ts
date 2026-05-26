@@ -410,14 +410,11 @@ async function maybeGenerateKnockoutPhase(
 
   if (knockoutBracket.matches.length === 0) return false;
 
-  // Build participantPlayerMap for court assigner
-  const participantPlayerMap = new Map<string, string[]>();
+  // Build participantNameMap for court assigner
+  const participantNameMap = new Map<string, string>();
   for (const pool of category.pools) {
     for (const p of pool.participants) {
-      participantPlayerMap.set(
-        p.id,
-        p.playerLinks.map((l) => l.playerId)
-      );
+      participantNameMap.set(p.id, p.name);
     }
   }
 
@@ -444,7 +441,7 @@ async function maybeGenerateKnockoutPhase(
     realKnockoutMatches,
     tournament.courts.map((c) => ({ id: c.id, name: c.name })),
     schedulerConfig,
-    participantPlayerMap
+    participantNameMap
   );
 
   // Persist knockout matches (same 2-pass approach as generate endpoint)

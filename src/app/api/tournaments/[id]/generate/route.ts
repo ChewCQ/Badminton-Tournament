@@ -278,7 +278,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }
 
       // Helper to resolve pool temp IDs
-      const resolvePoolId = (tempPoolId?: string): string | null => {
+      const resolvePoolId = (tempPoolId?: string | null): string | null => {
         if (!tempPoolId) return null;
         const found = dbPools.find((p) => p.tempId === tempPoolId);
         return found?.id ?? null;
