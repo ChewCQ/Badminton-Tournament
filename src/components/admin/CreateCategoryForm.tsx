@@ -132,36 +132,37 @@ export const CreateCategoryForm = ({ tournamentId, onSuccess }: { tournamentId: 
         </div>
 
         {/* Dynamic Fields based on format */}
-        {(selectedFormat === "ROUND_ROBIN" || selectedFormat === "POOL_TO_BRACKET") && (
-          <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl space-y-3">
-            <div className="flex items-start gap-2 text-indigo-300 text-xs font-medium mb-1">
-              <Info className="w-4 h-4 shrink-0" />
-              <p>Configure pool settings for the group stage.</p>
+        <div className={cn(
+          "p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl space-y-3",
+          (selectedFormat === "KNOCKOUT") ? "hidden" : "block"
+        )}>
+          <div className="flex items-start gap-2 text-indigo-300 text-xs font-medium mb-1">
+            <Info className="w-4 h-4 shrink-0" />
+            <p>Configure pool settings for the group stage.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
+                Players per Pool
+              </label>
+              <input
+                type="number"
+                {...register("poolSize")}
+                className="w-full bg-zinc-950 border border-indigo-500/20 rounded-lg px-2 py-1.5 text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
-                  Players per Pool
-                </label>
-                <input
-                  type="number"
-                  {...register("poolSize")}
-                  className="w-full bg-zinc-950 border border-indigo-500/20 rounded-lg px-2 py-1.5 text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
-                  Advance Count
-                </label>
-                <input
-                  type="number"
-                  {...register("advanceCount")}
-                  className="w-full bg-zinc-950 border border-indigo-500/20 rounded-lg px-2 py-1.5 text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                />
-              </div>
+            <div>
+              <label className="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
+                Advance Count
+              </label>
+              <input
+                type="number"
+                {...register("advanceCount")}
+                className="w-full bg-zinc-950 border border-indigo-500/20 rounded-lg px-2 py-1.5 text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              />
             </div>
           </div>
-        )}
+        </div>
 
         <button
           type="submit"
