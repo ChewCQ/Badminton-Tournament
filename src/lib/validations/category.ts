@@ -8,6 +8,7 @@ export const createCategorySchema = z.object({
   format: z.nativeEnum(TournamentFormat),
   poolSize: z.coerce.number().min(3).max(10),
   advanceCount: z.coerce.number().min(1).max(4),
+  bestOf: z.coerce.number().min(1).max(5),
 });
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;

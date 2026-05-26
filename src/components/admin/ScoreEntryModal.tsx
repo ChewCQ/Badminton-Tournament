@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import { saveMatchScore, markWalkover } from "@/lib/actions/scoring";
 import { useRouter } from "next/navigation";
 import { X, Trophy, Loader2 } from "lucide-react";
+import { LocalTime } from "@/components/LocalTime";
 
 interface SetScore {
   setNumber: number;
@@ -106,7 +107,7 @@ export function ScoreEntryModal({
             <p className="text-indigo-200 text-xs font-bold uppercase tracking-wider">{match.category.name} • Best of {bestOf}</p>
             {match.court && match.scheduledStartTime && (
               <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-bold uppercase tracking-widest text-white/90">
-                {match.court.name} @ {new Date(match.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {match.court.name} @ <LocalTime date={match.scheduledStartTime} />
               </span>
             )}
           </div>

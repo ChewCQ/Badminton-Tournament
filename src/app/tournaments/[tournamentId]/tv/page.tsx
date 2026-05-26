@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Trophy } from "lucide-react";
+import { LocalTime } from "@/components/LocalTime";
 
 // Helper to refresh this page automatically every 30 seconds for live updates
 export const revalidate = 30;
@@ -73,9 +74,10 @@ export default async function TVDisplayPage({
           </div>
         </div>
         
-        <div className="flex items-center gap-4 text-right">
-          <div className="text-3xl font-black text-indigo-400 tracking-tighter">
-            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        <div className="flex flex-col items-end">
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-1">Local Time</p>
+          <div className="text-3xl font-black text-white bg-slate-800/80 px-4 py-2 rounded-xl backdrop-blur-sm border border-slate-700">
+            <LocalTime date={new Date()} />
           </div>
         </div>
       </header>

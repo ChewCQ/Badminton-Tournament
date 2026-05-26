@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Calendar, MapPin, Trophy, ChevronRight, Activity } from "lucide-react";
 import Link from "next/link";
+import { LocalTime } from "@/components/LocalTime";
 
 export default async function PublicTournamentOverview({
   params,
@@ -205,7 +206,7 @@ export default async function PublicTournamentOverview({
                   {globalMatches.map((match) => (
                     <tr key={match.id} className="hover:bg-slate-50/50 transition-colors text-xs sm:text-sm">
                       <td className="px-4 sm:px-6 py-4 text-slate-600 font-medium">
-                        {match.scheduledStartTime ? new Date(match.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                        {match.scheduledStartTime ? <LocalTime date={match.scheduledStartTime} /> : 'TBD'}
                       </td>
                       <td className="px-4 sm:px-6 py-4 font-black text-emerald-600">
                         {match.court?.name || 'Unassigned'}

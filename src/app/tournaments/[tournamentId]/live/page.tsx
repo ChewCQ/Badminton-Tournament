@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Activity, Clock, MapPin } from "lucide-react";
+import { LocalTime } from "@/components/LocalTime";
 
 export const revalidate = 30; // auto-refresh every 30s
 
@@ -158,7 +159,7 @@ export default async function PublicLiveMatchesPage({
                           </span>
                           {liveMatch.scheduledStartTime && (
                             <span className="flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded border border-slate-200/50 shadow-sm">
-                              <Clock className="w-3 h-3 text-rose-500" /> {new Date(liveMatch.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              <Clock className="w-3 h-3 text-rose-500" /> <LocalTime date={liveMatch.scheduledStartTime} />
                             </span>
                           )}
                         </div>
@@ -194,7 +195,7 @@ export default async function PublicLiveMatchesPage({
                             </span>
                             {upNextMatch.scheduledStartTime && (
                               <span className="flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded border border-slate-200/50 shadow-sm">
-                                <Clock className="w-3 h-3 text-rose-500" /> {new Date(upNextMatch.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <Clock className="w-3 h-3 text-rose-500" /> <LocalTime date={upNextMatch.scheduledStartTime} />
                               </span>
                             )}
                           </div>

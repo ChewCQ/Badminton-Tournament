@@ -6,6 +6,7 @@ import { GenerateScheduleButton } from "@/components/admin/GenerateScheduleButto
 import { TournamentSettingsCard } from "@/components/admin/TournamentSettingsCard";
 import { TournamentQRCode } from "@/components/admin/TournamentQRCode";
 import { DeleteCategoryButton } from "@/components/admin/DeleteCategoryButton";
+import { LocalTime } from "@/components/LocalTime";
 import { Users, Layers, Activity, Calendar, LayoutGrid, Clock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -206,7 +207,7 @@ export default async function TournamentDetailsPage({
                     globalMatches.map((match) => (
                       <tr key={match.id} className="hover:bg-zinc-900/50 transition-colors text-sm">
                         <td className="px-4 py-3 text-zinc-300">
-                          {match.scheduledStartTime ? new Date(match.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                          {match.scheduledStartTime ? <LocalTime date={match.scheduledStartTime} /> : 'TBD'}
                         </td>
                         <td className="px-4 py-3 font-semibold text-indigo-400">
                           {match.court?.name || 'Unassigned'}

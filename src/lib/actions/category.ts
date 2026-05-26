@@ -45,6 +45,7 @@ export async function createCategory(data: CreateCategoryInput) {
         format: parsedData.format,
         poolSize: parsedData.poolSize,
         advanceCount: parsedData.advanceCount,
+        bestOf: parsedData.bestOf,
       },
     });
 
