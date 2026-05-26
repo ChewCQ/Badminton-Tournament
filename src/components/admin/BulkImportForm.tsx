@@ -12,14 +12,17 @@ interface Category {
 
 export function BulkImportForm({ 
   tournamentId, 
-  categories 
+  categories,
+  selectedCategory,
+  onCategoryChange
 }: { 
   tournamentId: string;
   categories: Category[];
+  selectedCategory: string;
+  onCategoryChange: (id: string) => void;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]?.id || "");
   const [rawData, setRawData] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successCount, setSuccessCount] = useState<number | null>(null);
@@ -77,7 +80,7 @@ export function BulkImportForm({
           <label className="block text-sm font-bold text-slate-700 mb-2">Target Category</label>
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(e) => onCategoryChange(e.target.value)}
             disabled={isPending}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           >

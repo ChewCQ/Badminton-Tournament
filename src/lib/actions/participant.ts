@@ -75,3 +75,47 @@ export async function bulkImportParticipants(
     return { success: false, error: "An unexpected error occurred during import." };
   }
 }
+
+export async function deleteParticipant(participantId: string, tournamentId: string) {
+  try {
+    await prisma.participant.delete({
+      where: { id: participantId }
+    });
+    revalidatePath(`/admin/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete participant:", error);
+    return { success: false, error: "Failed to delete participant." };
+  }
+}
+
+export async function updateParticipant(participantId: string, tournamentId: string, data: { name: string; teamName: string | null }) {
+  try {
+    await prisma.participant.update({
+      where: { id: participantId },
+      data: {
+        name: data.name,
+        teamName: data.teamName,
+      }
+    });
+    // Also try to update the dummy Player record linked, if there's only 1 player linked
+    const links = await prisma.playerOnParticipant.findMany({
+      where: { participantId },
+      include: { player: true }
+    });
+    if (links.length === 1) {
+      await prisma.player.update({
+        where: { id: links[0].playerId },
+        data: { lastName: data.name }
+      });
+    }
+
+    revalidatePath(`/admin/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update participant:", error);
+    return { success: false, error: "Failed to update participant." };
+  }
+}

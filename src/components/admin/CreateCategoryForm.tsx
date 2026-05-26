@@ -79,7 +79,7 @@ export const CreateCategoryForm = ({ tournamentId, onSuccess }: { tournamentId: 
       {serverSuccess && (
         <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2 text-emerald-400">
           <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-          <p className="text-xs font-medium">Category created with 8 test players!</p>
+          <p className="text-xs font-medium">Category created successfully!</p>
         </div>
       )}
 
