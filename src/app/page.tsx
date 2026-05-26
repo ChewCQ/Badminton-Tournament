@@ -73,6 +73,15 @@ export default async function HomePage() {
           ))}
         </div>
       )}
+
+      <footer className="mt-auto pt-16 pb-4 w-full text-center">
+        <Link 
+          href="/admin" 
+          className="text-xs text-slate-300 hover:text-slate-500 transition-colors font-medium"
+        >
+          Admin Login
+        </Link>
+      </footer>
     </main>
   );
 }
