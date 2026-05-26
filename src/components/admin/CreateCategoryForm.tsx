@@ -65,7 +65,7 @@ export const CreateCategoryForm = ({ tournamentId, onSuccess }: { tournamentId: 
           Add Category
         </h3>
         <p className="text-zinc-500 text-xs mt-1">
-          Create a new playing category. We will automatically inject 8 test players for you!
+          Create a new playing category for this tournament.
         </p>
       </div>
 

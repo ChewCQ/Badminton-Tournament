@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useTransition } from "react";
 import { createSponsor } from "@/lib/actions/sponsor";
+import { uploadFileAsBase64 } from "@/lib/utils/upload";
 import { ImagePlus, Loader2, Save } from "lucide-react";
 import Image from "next/image";
 
@@ -27,11 +28,7 @@ export function CreateSponsorForm({ tournamentId }: Props) {
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadFileAsBase64(file);
       
       if (data.success && data.url) {
         setLogoUrl(data.url);
@@ -39,7 +36,7 @@ export function CreateSponsorForm({ tournamentId }: Props) {
         alert("Upload failed: " + data.error);
       }
     } catch (err) {
-      alert("Error uploading file.");
+      alert("Error reading file.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

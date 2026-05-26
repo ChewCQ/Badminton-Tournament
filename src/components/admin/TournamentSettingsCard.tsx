@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useTransition } from "react";
 import { updateTournamentDetails } from "@/lib/actions/tournament";
+import { uploadFileAsBase64 } from "@/lib/utils/upload";
 import { Camera, MapPin, Copy, Check, Edit2, Loader2, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -51,11 +52,7 @@ export function TournamentSettingsCard({ tournamentId, initialVenue, initialPost
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadFileAsBase64(file);
       
       if (data.success && data.url) {
         startTransition(async () => {
@@ -66,7 +63,7 @@ export function TournamentSettingsCard({ tournamentId, initialVenue, initialPost
         alert("Upload failed: " + data.error);
       }
     } catch (err) {
-      alert("Error uploading file.");
+      alert("Error reading file.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -82,11 +79,7 @@ export function TournamentSettingsCard({ tournamentId, initialVenue, initialPost
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadFileAsBase64(file);
       
       if (data.success && data.url) {
         startTransition(async () => {
@@ -97,7 +90,7 @@ export function TournamentSettingsCard({ tournamentId, initialVenue, initialPost
         alert("Upload failed: " + data.error);
       }
     } catch (err) {
-      alert("Error uploading file.");
+      alert("Error reading file.");
     } finally {
       setIsUploadingHostLogo(false);
       if (hostLogoInputRef.current) hostLogoInputRef.current.value = "";

@@ -5,10 +5,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTournamentSchema, type CreateTournamentInput } from "@/lib/validations/tournament";
 import { createTournament } from "@/lib/actions/tournament";
-import { Calendar, Clock, Trophy, Layers, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Calendar, Clock, Trophy, Layers, AlertCircle, CheckCircle2, Loader2, Link2 } from "lucide-react";
 
 function cn(...inputs: (string | boolean | undefined | null)[]) {
   return inputs.filter(Boolean).join(" ");
+}
+
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
 }
 
 export const CreateTournamentForm = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -21,6 +31,8 @@ export const CreateTournamentForm = ({ onSuccess }: { onSuccess?: () => void }) 
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<CreateTournamentInput>({
     resolver: zodResolver(createTournamentSchema),
     defaultValues: {
@@ -85,14 +97,40 @@ export const CreateTournamentForm = ({ onSuccess }: { onSuccess?: () => void }) 
               Tournament Name
             </label>
             <input
-              {...register("name")}
-              placeholder="e.g., BWF World Tour Finals 2026"
+              {...register("name", {
+                onBlur: (e) => {
+                  const currentSlug = watch("slug");
+                  if (!currentSlug) {
+                    setValue("slug", generateSlug(e.target.value), { shouldValidate: true });
+                  }
+                }
+              })}
+              placeholder="e.g., HEXA Open 2026"
               className={cn(
                 "w-full bg-zinc-900 border rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all",
                 errors.name ? "border-red-500/50" : "border-zinc-800"
               )}
             />
             {errors.name && <p className="text-red-400 text-xs mt-2 font-medium">{errors.name.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <Link2 className="w-3.5 h-3.5" /> Tournament URL Slug
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-600 text-sm font-mono shrink-0">/tournaments/</span>
+              <input
+                {...register("slug")}
+                placeholder="e.g., hexa-open-2026"
+                className={cn(
+                  "flex-1 bg-zinc-900 border rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono text-sm",
+                  errors.slug ? "border-red-500/50" : "border-zinc-800"
+                )}
+              />
+            </div>
+            {errors.slug && <p className="text-red-400 text-xs mt-2 font-medium">{errors.slug.message}</p>}
+            <p className="text-zinc-600 text-xs mt-1.5">Lowercase letters, numbers, and hyphens only. This becomes part of the public URL.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

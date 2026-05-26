@@ -13,6 +13,7 @@ export default async function HomePage() {
     select: {
       id: true,
       name: true,
+      slug: true,
       startDate: true,
       status: true,
     },
@@ -38,7 +39,7 @@ export default async function HomePage() {
         <div className="w-full max-w-4xl flex flex-col gap-4">
           {tournaments.map((t) => (
             <Link 
-              href={`/tournaments/${t.id}`} 
+              href={`/tournaments/${t.slug}`} 
               key={t.id}
               className="group block w-full"
             >

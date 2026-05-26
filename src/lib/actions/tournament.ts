@@ -18,6 +18,7 @@ export async function createTournament(data: CreateTournamentInput) {
     const tournament = await prisma.tournament.create({
       data: {
         name: parsedData.name,
+        slug: parsedData.slug,
         startDate: new Date(parsedData.startDate),
         endDate: parsedData.endDate ? new Date(parsedData.endDate) : null,
         numberOfCourts: parsedData.numberOfCourts,

@@ -7,14 +7,14 @@ export default async function CategoryStandingsPage({
 }: {
   params: Promise<{ tournamentId: string; categoryId: string }>;
 }) {
-  const { tournamentId, categoryId } = await params;
+  const { tournamentId: slug, categoryId } = await params;
 
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
     include: { tournament: true },
   });
 
-  if (!category || category.tournamentId !== tournamentId) {
+  if (!category || category.tournament.slug !== slug) {
     notFound();
   }
 

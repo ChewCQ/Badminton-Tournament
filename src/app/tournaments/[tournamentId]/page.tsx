@@ -13,7 +13,7 @@ export default async function PublicTournamentOverview({
   const { tournamentId } = await params;
 
   const tournament = await prisma.tournament.findUnique({
-    where: { id: tournamentId },
+    where: { slug: tournamentId },
     include: {
       sponsors: {
         orderBy: [
@@ -35,7 +35,7 @@ export default async function PublicTournamentOverview({
   // Find active matches count for a quick stat
   const activeMatchesCount = await prisma.match.count({
     where: {
-      category: { tournamentId },
+      category: { tournamentId: tournament.id },
       status: "IN_PROGRESS",
     },
   });
@@ -43,7 +43,7 @@ export default async function PublicTournamentOverview({
   // Fetch upcoming dynamic court assignments
   const globalMatches = await prisma.match.findMany({
     where: {
-      category: { tournamentId },
+      category: { tournamentId: tournament.id },
       status: { in: ["SCHEDULED", "IN_PROGRESS"] },
     },
     include: {

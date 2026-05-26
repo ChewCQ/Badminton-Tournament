@@ -59,6 +59,7 @@ enum NextMatchSlot {
 model Tournament {
   id   String @id @default(cuid())
   name String
+  slug String @unique // Clean URL identifier, e.g. "hexa-open-2026"
 
   startDate DateTime
   endDate   DateTime?

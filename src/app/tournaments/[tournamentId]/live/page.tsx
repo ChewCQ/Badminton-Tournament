@@ -64,7 +64,7 @@ export default async function PublicLiveMatchesPage({
   const { tournamentId } = await params;
 
   const tournament = await prisma.tournament.findUnique({
-    where: { id: tournamentId },
+    where: { slug: tournamentId },
     include: {
       sponsors: true,
       courts: {

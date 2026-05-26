@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const createTournamentSchema = z.object({
   name: z.string().min(3, "Tournament name must be at least 3 characters").max(100),
+  slug: z.string().min(3, "Slug must be at least 3 characters").max(50)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase letters, numbers, and hyphens only (e.g. hexa-open-2026)"),
   startDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid start date",
   }),
@@ -18,6 +20,8 @@ export type CreateTournamentInput = z.infer<typeof createTournamentSchema>;
 // Schema for the /api/tournaments POST route
 export const CreateTournamentSchema = z.object({
   name: z.string().min(3),
+  slug: z.string().min(3).max(50)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   startDate: z.string(),
   endDate: z.string().optional().nullable(),
   numberOfCourts: z.number().int().min(1),

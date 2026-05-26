@@ -15,7 +15,7 @@ export default async function TVDisplayPage({
   const { tournamentId } = await params;
 
   const tournament = await prisma.tournament.findUnique({
-    where: { id: tournamentId },
+    where: { slug: tournamentId },
     include: {
       sponsors: true,
       courts: {

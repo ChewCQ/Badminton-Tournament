@@ -19,6 +19,7 @@ async function main() {
   const tournament = await prisma.tournament.create({
     data: {
       name: "BWF World Tour Finals 2026",
+      slug: "bwf-world-tour-finals-2026",
       startDate: new Date("2026-12-10T09:00:00Z"),
       endDate: new Date("2026-12-15T18:00:00Z"),
       status: "IN_PROGRESS",

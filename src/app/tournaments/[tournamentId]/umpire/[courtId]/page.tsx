@@ -11,10 +11,16 @@ export default async function UmpireCourtPage({
 }: {
   params: Promise<{ tournamentId: string; courtId: string }>;
 }) {
-  const { tournamentId, courtId } = await params;
+  const { tournamentId: slug, courtId } = await params;
+
+  const tournamentRecord = await prisma.tournament.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+  if (!tournamentRecord) notFound();
 
   const court = await prisma.court.findUnique({
-    where: { id: courtId, tournamentId },
+    where: { id: courtId, tournamentId: tournamentRecord.id },
   });
 
   if (!court) notFound();
@@ -51,7 +57,7 @@ export default async function UmpireCourtPage({
   return (
     <UmpireScoringClient 
       match={activeMatch} 
-      tournamentId={tournamentId}
+      tournamentId={slug}
       courtName={court.name}
     />
   );

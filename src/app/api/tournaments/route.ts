@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       const newTournament = await tx.tournament.create({
         data: {
           name: input.name,
+          slug: input.slug,
           startDate: new Date(input.startDate),
           endDate: input.endDate ? new Date(input.endDate) : null,
           numberOfCourts: input.numberOfCourts,
