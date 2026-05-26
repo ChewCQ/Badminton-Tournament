@@ -1,0 +1,358 @@
+// ============================================================================
+// Badminton Tournament Management Platform — Prisma Schema
+// ============================================================================
+// Supports Round Robin, Knockout, and Pool-to-Bracket tournament formats
+// with multi-court scheduling, player rest enforcement, and bracket progression.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Enums
+// ──────────────────────────────────────────────────────────────────────────────
+
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION_OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TournamentFormat {
+  ROUND_ROBIN
+  KNOCKOUT
+  POOL_TO_BRACKET
+}
+
+enum CategoryType {
+  SINGLES
+  DOUBLES
+  MIXED_DOUBLES
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  WALKOVER
+  CANCELLED
+  BYE
+}
+
+enum NextMatchSlot {
+  SLOT_1
+  SLOT_2
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Tournament
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Tournament {
+  id   String @id @default(cuid())
+  name String
+
+  startDate DateTime
+  endDate   DateTime?
+
+  venue         String?
+  posterUrl     String?
+  hostLogoUrl   String?
+
+  status TournamentStatus @default(DRAFT)
+
+  /// Convenience field: total number of courts available
+  numberOfCourts                 Int
+  estimatedMatchDurationMinutes  Int @default(30)
+  restPeriodMinutes              Int @default(20)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  courts     Court[]
+  categories Category[]
+  sponsors   Sponsor[]
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Sponsor
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Sponsor {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String
+  tier      String   @default("STANDARD")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@index([tournamentId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Court
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Court {
+  id          String @id @default(cuid())
+  name        String // e.g. "Court 1"
+  courtNumber Int
+
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  // Relations
+  matches Match[]
+
+  @@unique([tournamentId, courtNumber])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Category — A competitive division within a tournament
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Category {
+  id   String @id @default(cuid())
+  name String // e.g. "Men's Singles A"
+
+  type   CategoryType
+  format TournamentFormat
+
+  /// Number of participants per pool (for Round Robin / Pool-to-Bracket)
+  poolSize     Int @default(4)
+  /// How many participants advance from each pool
+  advanceCount Int @default(2)
+  /// Best of N sets (1, 3, or 5)
+  bestOf       Int @default(3)
+
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  // Relations
+  participants Participant[]
+  pools        Pool[]
+  matches      Match[]
+  standings    Standing[]
+
+  @@index([tournamentId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Player — An individual person
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Player {
+  id        String  @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String? @unique
+  phone     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participantLinks PlayerOnParticipant[]
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Participant — The entry unit (1 player for singles, 2 for doubles)
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Participant {
+  id       String  @id @default(cuid())
+  name     String  // Display name, e.g. "John Doe" or "Doe/Smith"
+  teamName String? // e.g. "VBA"
+  seed     Int?    // Seeding within the category
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  poolId String?
+  pool   Pool?   @relation(fields: [poolId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  playerLinks PlayerOnParticipant[]
+  matchesAsP1 Match[]              @relation("MatchParticipant1")
+  matchesAsP2 Match[]              @relation("MatchParticipant2")
+  matchesWon  Match[]              @relation("MatchWinner")
+  standings   Standing[]
+
+  @@index([categoryId])
+  @@index([poolId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PlayerOnParticipant — Join table linking Players to Participants
+// ──────────────────────────────────────────────────────────────────────────────
+
+model PlayerOnParticipant {
+  id String @id @default(cuid())
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, participantId])
+  @@index([playerId])
+  @@index([participantId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Pool — A round-robin group within a category
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Pool {
+  id         String @id @default(cuid())
+  name       String // e.g. "Pool A"
+  poolNumber Int
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Relations
+  participants Participant[]
+  matches      Match[]
+  standings    Standing[]
+
+  @@unique([categoryId, poolNumber])
+  @@index([categoryId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Match — A single match (pool stage or knockout bracket)
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Match {
+  id String @id @default(cuid())
+
+  // ── Category & Pool ──
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  poolId String?
+  pool   Pool?   @relation(fields: [poolId], references: [id], onDelete: SetNull)
+
+  // ── Court assignment ──
+  courtId String?
+  court   Court?  @relation(fields: [courtId], references: [id], onDelete: SetNull)
+
+  // ── Participants (nullable for bracket shells awaiting progression) ──
+  participant1Id String?
+  participant1   Participant? @relation("MatchParticipant1", fields: [participant1Id], references: [id], onDelete: SetNull)
+
+  participant2Id String?
+  participant2   Participant? @relation("MatchParticipant2", fields: [participant2Id], references: [id], onDelete: SetNull)
+
+  // ── Result ──
+  winnerId String?
+  winner   Participant? @relation("MatchWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  status MatchStatus @default(SCHEDULED)
+
+  // ── Scheduling ──
+  scheduledStartTime DateTime?
+  scheduledEndTime   DateTime?
+  actualStartTime    DateTime?
+  actualEndTime      DateTime?
+
+  // ── Round tracking ──
+  /// Round number within the pool or bracket stage
+  roundNumber   Int
+  /// Knockout round: 1 = first round, 2 = quarters, 3 = semis, etc.
+  bracketRound    Int?
+  /// Position within bracket round (for bracket rendering)
+  bracketPosition Int?
+
+  // ── Bracket progression ──
+  /// The match the winner advances to
+  nextMatchId String?
+  nextMatch   Match?        @relation("MatchProgression", fields: [nextMatchId], references: [id], onDelete: SetNull)
+  /// Which slot (1 or 2) the winner fills in the next match
+  nextMatchSlot NextMatchSlot?
+
+  /// Matches whose winners feed into this match
+  previousMatches Match[] @relation("MatchProgression")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sets MatchSet[]
+
+  @@index([categoryId])
+  @@index([poolId])
+  @@index([courtId])
+  @@index([participant1Id])
+  @@index([participant2Id])
+  @@index([nextMatchId])
+  @@index([status])
+  @@index([scheduledStartTime])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// MatchSet — Individual game scores within a match (best of 3)
+// ──────────────────────────────────────────────────────────────────────────────
+
+model MatchSet {
+  id String @id @default(cuid())
+
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  setNumber Int // 1, 2, or 3
+  score1    Int // Participant 1's score
+  score2    Int // Participant 2's score
+
+  @@unique([matchId, setNumber])
+  @@index([matchId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Standing — Computed standings for a participant in a category/pool
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Standing {
+  id String @id @default(cuid())
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  poolId String?
+  pool   Pool?   @relation(fields: [poolId], references: [id], onDelete: SetNull)
+
+  rank          Int
+  matchesPlayed Int @default(0)
+  matchesWon    Int @default(0)
+  matchesLost   Int @default(0)
+  setsWon       Int @default(0)
+  setsLost      Int @default(0)
+  pointsWon     Int @default(0)
+  pointsLost    Int @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, participantId])
+  @@index([categoryId])
+  @@index([participantId])
+  @@index([poolId])
+}

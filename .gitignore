@@ -1,0 +1,11 @@
+﻿# Node.js dependencies – never commit these
+/node_modules/
+# Next.js build output
+/.next/
+# Environment files (local secrets)
+.env
+.env.local
+.env.production
+# OS‑specific junk
+Thumbs.db
+Desktop.ini
