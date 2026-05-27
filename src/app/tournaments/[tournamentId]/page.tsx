@@ -53,8 +53,11 @@ export default async function PublicTournamentOverview({
       court: true,
       category: true,
     },
-    orderBy: { scheduledStartTime: "asc" },
-    take: 8,
+    orderBy: [
+      { scheduledStartTime: "asc" },
+      { court: { courtNumber: "asc" } }
+    ],
+    take: tournament._count.courts, // Show exactly one block of matches per court
   });
 
   return (
