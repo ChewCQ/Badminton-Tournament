@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { updateMatchTime } from "@/lib/actions/draws";
 import { Check, Clock, Loader2 } from "lucide-react";
+import { LocalTime } from "@/components/LocalTime";
 
 interface MatchData {
   id: string;
@@ -82,7 +83,7 @@ export function MatchTimeOverride({
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    {m.scheduledStartTime ? new Date(m.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                    {m.scheduledStartTime ? <LocalTime date={m.scheduledStartTime} /> : 'TBD'}
                   </span>
                 )}
               </td>

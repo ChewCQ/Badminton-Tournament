@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { GitMerge, X, Clock, Calendar, MapPin, Trophy, Activity, Award } from 'lucide-react';
 import { ScoreEntryModal } from './ScoreEntryModal';
+import { LocalTime } from '@/components/LocalTime';
 
 interface Participant {
   id: string;
@@ -182,7 +183,7 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                             : match.status === 'IN_PROGRESS' ? theme.headerInProgress
                             : theme.headerScheduled
                           }`}>
-                            {match.court.name} • {new Date(match.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {match.court.name} • <LocalTime date={match.scheduledStartTime} />
                           </div>
                         )}
                         
@@ -331,7 +332,7 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Scheduled Time</p>
                     <p className="text-sm font-bold text-slate-800">
                       {selectedDetailMatch.scheduledStartTime ? (
-                        new Date(selectedDetailMatch.scheduledStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        <LocalTime date={selectedDetailMatch.scheduledStartTime} />
                       ) : (
                         "TBA"
                       )}
