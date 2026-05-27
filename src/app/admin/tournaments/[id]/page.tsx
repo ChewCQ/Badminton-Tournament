@@ -47,8 +47,11 @@ export default async function TournamentDetailsPage({
       court: true,
       category: true,
     },
-    orderBy: { scheduledStartTime: "asc" },
-    take: 8, // Just show upcoming 8 globally
+    orderBy: [
+      { scheduledStartTime: "asc" },
+      { court: { courtNumber: "asc" } }
+    ],
+    take: tournament.numberOfCourts, // Show exactly one block of matches per court
   });
 
   return (
