@@ -6,6 +6,7 @@ import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon } from 
 import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
+import { getCategoryColor, getCategoryColorBg } from "@/lib/utils/colors";
 
 // Types
 interface Participant { id: string; name: string; teamName?: string | null; }
@@ -106,35 +107,7 @@ export function TimetableGrid({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const getCategoryColor = (categoryId: string) => {
-    let hash = 0;
-    for (let i = 0; i < categoryId.length; i++) {
-      hash = categoryId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const colors = [
-      'border-l-indigo-500', 'border-l-rose-500', 'border-l-emerald-500',
-      'border-l-amber-500', 'border-l-cyan-500', 'border-l-fuchsia-500',
-      'border-l-blue-500', 'border-l-orange-500', 'border-l-teal-500',
-      'border-l-pink-500', 'border-l-violet-500', 'border-l-lime-500',
-      'border-l-sky-500', 'border-l-red-500', 'border-l-yellow-500'
-    ];
-    return colors[Math.abs(hash) % colors.length];
-  };
-
-  const getCategoryColorBg = (categoryId: string) => {
-    let hash = 0;
-    for (let i = 0; i < categoryId.length; i++) {
-      hash = categoryId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const colors = [
-      'bg-indigo-50 text-indigo-700', 'bg-rose-50 text-rose-700', 'bg-emerald-50 text-emerald-700',
-      'bg-amber-50 text-amber-700', 'bg-cyan-50 text-cyan-700', 'bg-fuchsia-50 text-fuchsia-700',
-      'bg-blue-50 text-blue-700', 'bg-orange-50 text-orange-700', 'bg-teal-50 text-teal-700',
-      'bg-pink-50 text-pink-700', 'bg-violet-50 text-violet-700', 'bg-lime-50 text-lime-700',
-      'bg-sky-50 text-sky-700', 'bg-red-50 text-red-700', 'bg-yellow-50 text-yellow-700'
-    ];
-    return colors[Math.abs(hash) % colors.length];
-  };
+  // Colors are now imported from @/lib/utils/colors
 
   const getPlayerLabel = (p: Participant | null, match: Match) => {
     if (p) {

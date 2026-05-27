@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Trophy } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
+import { getCategoryBadge } from "@/lib/utils/colors";
 
 // Helper to refresh this page automatically every 30 seconds for live updates
 export const revalidate = 30;
@@ -129,7 +130,7 @@ export default async function TVDisplayPage({
                   {match ? (
                     <div className="space-y-6">
                       <div className="text-center">
-                        <span className="inline-block px-3 py-1 bg-zinc-800 text-zinc-300 rounded text-xs font-bold uppercase tracking-wider mb-4 border border-zinc-700">
+                        <span className={`inline-block px-3 py-1 rounded text-xs font-bold uppercase tracking-wider mb-4 border ${getCategoryBadge(match.category.id)}`}>
                           {match.category.name}
                         </span>
                         

@@ -163,7 +163,10 @@ export function assignMatchesToCourts(
   // Sort regular matches by priority (interleaved if categoryPriorityIds is provided)
   regularMatches.sort((a, b) => getMatchPriority(a, categoryPriorityIds) - getMatchPriority(b, categoryPriorityIds));
 
-  const courtSchedules = new Map<string, TimeBlock[]>(existingCourtSchedules);
+  const courtSchedules = new Map<string, TimeBlock[]>();
+  for (const [courtId, blocks] of existingCourtSchedules.entries()) {
+    courtSchedules.set(courtId, [...blocks].sort((a, b) => a.start.getTime() - b.start.getTime()));
+  }
   for (const c of courts) {
     if (!courtSchedules.has(c.id)) courtSchedules.set(c.id, []);
   }

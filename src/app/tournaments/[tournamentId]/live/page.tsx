@@ -7,56 +7,7 @@ import { LocalTime } from "@/components/LocalTime";
 
 export const revalidate = 30; // auto-refresh every 30s
 
-const getCategoryColorBg = (categoryId: string) => {
-  let hash = 0;
-  for (let i = 0; i < categoryId.length; i++) {
-    hash = categoryId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const colors = [
-    'bg-indigo-50/70 border-indigo-200 text-indigo-900', 
-    'bg-rose-50/70 border-rose-200 text-rose-900', 
-    'bg-emerald-50/70 border-emerald-200 text-emerald-900',
-    'bg-amber-50/70 border-amber-200 text-amber-900', 
-    'bg-cyan-50/70 border-cyan-200 text-cyan-900', 
-    'bg-fuchsia-50/70 border-fuchsia-200 text-fuchsia-900',
-    'bg-blue-50/70 border-blue-200 text-blue-900', 
-    'bg-orange-50/70 border-orange-200 text-orange-900', 
-    'bg-teal-50/70 border-teal-200 text-teal-900',
-    'bg-pink-50/70 border-pink-200 text-pink-900', 
-    'bg-violet-50/70 border-violet-200 text-violet-900', 
-    'bg-lime-50/70 border-lime-200 text-lime-900',
-    'bg-sky-50/70 border-sky-200 text-sky-900', 
-    'bg-red-50/70 border-red-200 text-red-900', 
-    'bg-yellow-50/70 border-yellow-200 text-yellow-900'
-  ];
-  return colors[Math.abs(hash) % colors.length];
-};
-
-const getCategoryColorText = (categoryId: string) => {
-  let hash = 0;
-  for (let i = 0; i < categoryId.length; i++) {
-    hash = categoryId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const colors = [
-    'text-indigo-600 bg-indigo-100/80 border-indigo-200', 
-    'text-rose-600 bg-rose-100/80 border-rose-200', 
-    'text-emerald-600 bg-emerald-100/80 border-emerald-200',
-    'text-amber-600 bg-amber-100/80 border-amber-200', 
-    'text-cyan-600 bg-cyan-100/80 border-cyan-200', 
-    'text-fuchsia-600 bg-fuchsia-100/80 border-fuchsia-200',
-    'text-blue-600 bg-blue-100/80 border-blue-200', 
-    'text-orange-600 bg-orange-100/80 border-orange-200', 
-    'text-teal-600 bg-teal-100/80 border-teal-200',
-    'text-pink-600 bg-pink-100/80 border-pink-200', 
-    'text-violet-600 bg-violet-100/80 border-violet-200', 
-    'text-lime-600 bg-lime-100/80 border-lime-200',
-    'text-sky-600 bg-sky-100/80 border-sky-200', 
-    'text-red-600 bg-red-100/80 border-red-200', 
-    'text-yellow-600 bg-yellow-100/80 border-yellow-200'
-  ];
-  return colors[Math.abs(hash) % colors.length];
-};
-
+import { getCategoryColorBg, getCategoryBadge } from '@/lib/utils/colors'; 
 export default async function PublicLiveMatchesPage({
   params,
 }: {
