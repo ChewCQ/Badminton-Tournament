@@ -11,7 +11,7 @@ interface TournamentData {
   name: string;
   startDate: Date;
   endDate: Date | null;
-  status: "DRAFT" | "REGISTRATION_OPEN" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  status: "DRAFT" | "REGISTRATION_OPEN" | "REGISTRATION_CLOSED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
   numberOfCourts: number;
   estimatedMatchDurationMinutes: number;
   restPeriodMinutes: number;
@@ -141,6 +141,7 @@ export function TournamentSettingsForm({ tournament }: { tournament: TournamentD
             >
               <option value="DRAFT">Draft (Not visible)</option>
               <option value="REGISTRATION_OPEN">Registration Open</option>
+              <option value="REGISTRATION_CLOSED">Registration Closed</option>
               <option value="IN_PROGRESS">In Progress (Live)</option>
               <option value="COMPLETED">Completed</option>
               <option value="CANCELLED">Cancelled</option>
