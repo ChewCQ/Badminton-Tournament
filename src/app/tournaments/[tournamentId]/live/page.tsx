@@ -138,7 +138,7 @@ export default async function PublicLiveMatchesPage({
                           
                           {/* Court & Time for Up Next */}
                           <div className="flex flex-wrap gap-1.5 text-[9px] font-black uppercase text-slate-600 shrink-0">
-                            <span className={`px-2 py-0.5 rounded border ${getCategoryColorText(upNextMatch.category.id)}`}>
+                            <span className={`px-2 py-0.5 rounded border ${getCategoryBadge(upNextMatch.category.id)}`}>
                               {upNextMatch.category.name}
                             </span>
                             <span className="flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded border border-slate-200/50 shadow-sm">
