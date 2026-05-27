@@ -99,7 +99,7 @@ export default async function PublicLiveMatchesPage({
                     {/* Main Matchup Card with Category Theme Color */}
                     <div className={`p-6 rounded-2xl border ${getCategoryColorBg(liveMatch.category.id)} shadow-sm relative overflow-hidden`}>
                       <div className="flex justify-between items-center gap-2 mb-4">
-                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border ${getCategoryColorText(liveMatch.category.id)}`}>
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border ${getCategoryBadge(liveMatch.category.id)}`}>
                           {liveMatch.category.name}
                         </span>
                         
