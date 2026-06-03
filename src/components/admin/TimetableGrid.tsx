@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
 import { getCategoryColor, getCategoryColorBg } from "@/lib/utils/colors";
+import { generateMatchCodePrefix } from "@/lib/utils/matchCode";
 
 // Types
 interface Participant { id: string; name: string; teamName?: string | null; }
@@ -61,6 +62,31 @@ export function TimetableGrid({
       count: catMatches.length
     }
   });
+
+  // Compute match codes: group matches by category, sort chronologically, assign numbers
+  const matchCodeMap = React.useMemo(() => {
+    const map = new Map<string, string>();
+    // Group all matches by categoryId
+    const byCat = new Map<string, Match[]>();
+    for (const m of matches) {
+      const catId = m.category.id;
+      if (!byCat.has(catId)) byCat.set(catId, []);
+      byCat.get(catId)!.push(m);
+    }
+    // For each category, sort by scheduledStartTime (nulls last), then assign numbers
+    for (const [catId, catMatches] of byCat) {
+      const prefix = generateMatchCodePrefix(catMatches[0].category.name);
+      const sorted = [...catMatches].sort((a, b) => {
+        const ta = a.scheduledStartTime ? new Date(a.scheduledStartTime).getTime() : Infinity;
+        const tb = b.scheduledStartTime ? new Date(b.scheduledStartTime).getTime() : Infinity;
+        return ta - tb;
+      });
+      sorted.forEach((m, idx) => {
+        map.set(m.id, `${prefix}-${idx + 1}`);
+      });
+    }
+    return map;
+  }, [matches]);
   const START_HOUR = 8;
   const END_HOUR = 20;
   const TOTAL_HOURS = END_HOUR - START_HOUR;
@@ -490,6 +516,7 @@ export function TimetableGrid({
           tournamentId={tournamentId}
           isOpen={true}
           onClose={() => setSelectedMatch(null)}
+          matchCode={matchCodeMap.get(selectedMatch.id)}
         />
       )}
     </div>

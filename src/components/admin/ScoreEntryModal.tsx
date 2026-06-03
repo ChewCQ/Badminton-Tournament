@@ -21,6 +21,7 @@ interface MatchForScoring {
   status: string;
   court: { name: string } | null;
   scheduledStartTime: Date | null;
+  matchCode?: string;
 }
 
 export function ScoreEntryModal({
@@ -28,11 +29,13 @@ export function ScoreEntryModal({
   tournamentId,
   isOpen,
   onClose,
+  matchCode,
 }: {
   match: MatchForScoring;
   tournamentId: string;
   isOpen: boolean;
   onClose: () => void;
+  matchCode?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -100,9 +103,16 @@ export function ScoreEntryModal({
       <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
-          <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="absolute top-4 right-4 flex items-center gap-3">
+            {(matchCode || match.matchCode) && (
+              <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
+                {matchCode || match.matchCode}
+              </span>
+            )}
+            <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <div className="flex items-center gap-3 mb-1">
             <p className="text-indigo-200 text-xs font-bold uppercase tracking-wider">{match.category.name} • Best of {bestOf}</p>
             {match.court && match.scheduledStartTime && (
