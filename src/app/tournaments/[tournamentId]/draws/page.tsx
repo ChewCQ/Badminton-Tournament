@@ -5,6 +5,8 @@ import Image from "next/image";
 import { GitMerge, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+export const revalidate = 300; // Cache for 5 minutes to reduce DB network transfer
+
 export default async function PublicDrawsHub({
   params,
 }: {

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Activity, Clock, MapPin } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
 
-export const revalidate = 30; // auto-refresh every 30s
+export const revalidate = 120; // auto-refresh every 2 minutes (reduced from 30s to save DB network transfer)
 
 import { getCategoryColorBg, getCategoryBadge } from '@/lib/utils/colors'; 
 export default async function PublicLiveMatchesPage({
@@ -18,7 +18,9 @@ export default async function PublicLiveMatchesPage({
   const tournament = await prisma.tournament.findUnique({
     where: { slug: tournamentId },
     include: {
-      sponsors: true,
+      sponsors: {
+        select: { id: true, name: true, logoUrl: true },
+      },
       courts: {
         orderBy: { courtNumber: 'asc' },
         include: {
@@ -31,10 +33,15 @@ export default async function PublicLiveMatchesPage({
             },
             take: 2,
             include: {
-              participant1: true,
-              participant2: true,
-              category: true,
-              sets: true
+              participant1: {
+                select: { id: true, name: true, teamName: true }
+              },
+              participant2: {
+                select: { id: true, name: true, teamName: true }
+              },
+              category: {
+                select: { id: true, name: true }
+              }
             }
           }
         }

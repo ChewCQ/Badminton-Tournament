@@ -6,6 +6,8 @@ import { Calendar, MapPin, Trophy, ChevronRight, Activity } from "lucide-react";
 import Link from "next/link";
 import { LocalTime } from "@/components/LocalTime";
 
+export const revalidate = 300; // Cache for 5 minutes to reduce DB network transfer
+
 export default async function PublicTournamentOverview({
   params,
 }: {
@@ -48,10 +50,18 @@ export default async function PublicTournamentOverview({
       status: { in: ["SCHEDULED", "IN_PROGRESS"] },
     },
     include: {
-      participant1: true,
-      participant2: true,
-      court: true,
-      category: true,
+      participant1: {
+        select: { id: true, name: true }
+      },
+      participant2: {
+        select: { id: true, name: true }
+      },
+      court: {
+        select: { name: true }
+      },
+      category: {
+        select: { name: true }
+      },
     },
     orderBy: [
       { scheduledStartTime: "asc" },

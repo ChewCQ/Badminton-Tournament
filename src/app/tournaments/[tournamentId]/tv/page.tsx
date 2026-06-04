@@ -6,8 +6,7 @@ import { Trophy } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
 import { getCategoryBadge } from "@/lib/utils/colors";
 
-// Helper to refresh this page automatically every 30 seconds for live updates
-export const revalidate = 30;
+export const revalidate = 120; // auto-refresh every 2 minutes (reduced from 30s to save DB network transfer)
 
 export default async function TVDisplayPage({
   params,
@@ -19,7 +18,9 @@ export default async function TVDisplayPage({
   const tournament = await prisma.tournament.findUnique({
     where: { slug: tournamentId },
     include: {
-      sponsors: true,
+      sponsors: {
+        select: { id: true, name: true, logoUrl: true },
+      },
       courts: {
         orderBy: { courtNumber: 'asc' },
         include: {
@@ -32,10 +33,15 @@ export default async function TVDisplayPage({
             },
             take: 1,
             include: {
-              participant1: true,
-              participant2: true,
-              category: true,
-              sets: true
+              participant1: {
+                select: { id: true, name: true, teamName: true }
+              },
+              participant2: {
+                select: { id: true, name: true, teamName: true }
+              },
+              category: {
+                select: { id: true, name: true }
+              }
             }
           }
         }

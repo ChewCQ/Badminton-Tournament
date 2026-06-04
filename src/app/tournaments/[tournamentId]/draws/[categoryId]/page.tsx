@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { BracketTree } from "@/components/admin/BracketTree";
 
-export const revalidate = 60; // Auto refresh bracket every minute
+export const revalidate = 300; // Auto refresh bracket every 5 minutes (reduced from 60s to save DB network transfer)
 
 export default async function PublicCategoryBracketPage({
   params,
