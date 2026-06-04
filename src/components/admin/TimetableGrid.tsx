@@ -2,12 +2,13 @@
 
 import React, { useState, useTransition, useEffect, useRef } from "react";
 import { reassignMatch } from "@/lib/actions/schedule";
-import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon } from "lucide-react";
+import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon, X, Clock, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
 import { getCategoryColor, getCategoryColorBg } from "@/lib/utils/colors";
 import { generateMatchCodePrefix } from "@/lib/utils/matchCode";
+import { LocalTime } from "@/components/LocalTime";
 
 // Types
 interface Participant { id: string; name: string; teamName?: string | null; }
@@ -51,6 +52,7 @@ export function TimetableGrid({
   const [isPending, startTransition] = useTransition();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [detailMatch, setDetailMatch] = useState<Match | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Extract unique categories from matches for the modal
@@ -140,7 +142,6 @@ export function TimetableGrid({
       const prefix = p.teamName ? `[${p.teamName}] ` : "";
       return `${prefix}${p.name}`;
     }
-    if (match.bracketRound && match.bracketRound > 1) return `Winner of R${match.bracketRound - 1}`;
     return "TBA";
   };
 
@@ -395,6 +396,8 @@ export function TimetableGrid({
                             onDoubleClick={() => {
                               if (match.participant1 && match.participant2) {
                                 setSelectedMatch(match);
+                              } else {
+                                setDetailMatch(match);
                               }
                             }}
                             className={`absolute top-2 bottom-2 rounded-lg shadow-sm border-y border-r border-l-[6px] cursor-grab active:cursor-grabbing px-2 py-1.5 overflow-hidden z-10 transition-all hover:shadow-md
@@ -518,6 +521,88 @@ export function TimetableGrid({
           onClose={() => setSelectedMatch(null)}
           matchCode={matchCodeMap.get(selectedMatch.id)}
         />
+      )}
+
+      {/* Detail Popup for future matches without both participants */}
+      {detailMatch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white relative">
+              <div className="absolute top-4 right-4 flex items-center gap-3">
+                {matchCodeMap.get(detailMatch.id) && (
+                  <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
+                    {matchCodeMap.get(detailMatch.id)}
+                  </span>
+                )}
+                <button onClick={() => setDetailMatch(null)} className="text-white/60 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-300 text-xs font-bold uppercase tracking-wider">{detailMatch.category.name} • Round {detailMatch.roundNumber}</p>
+              <h2 className="text-xl font-black tracking-tight mt-1">Upcoming Match</h2>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800 font-medium">
+                  This match is waiting for earlier round results. Participants will be determined once their preceding matches are completed.
+                </p>
+              </div>
+
+              {/* Matchup */}
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded bg-slate-200 text-[10px] font-black text-slate-500 flex items-center justify-center">1</div>
+                  <span className={`text-sm font-bold ${detailMatch.participant1 ? 'text-slate-800' : 'text-slate-400 italic'}`}>
+                    {detailMatch.participant1?.name || 'TBA'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 pl-2">
+                  <span className="text-[10px] font-black text-slate-300 uppercase">vs</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded bg-slate-200 text-[10px] font-black text-slate-500 flex items-center justify-center">2</div>
+                  <span className={`text-sm font-bold ${detailMatch.participant2 ? 'text-slate-800' : 'text-slate-400 italic'}`}>
+                    {detailMatch.participant2?.name || 'TBA'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Court & Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <div>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Court</p>
+                    <p className="text-sm font-bold text-slate-800">{detailMatch.court?.name || 'Unassigned'}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center gap-2.5">
+                  <Clock className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</p>
+                    <p className="text-sm font-bold text-slate-800">
+                      {detailMatch.scheduledStartTime ? <LocalTime date={detailMatch.scheduledStartTime} /> : 'TBA'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setDetailMatch(null)}
+                className="py-2.5 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

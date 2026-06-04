@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { GitMerge, X, Clock, Calendar, MapPin, Trophy, Activity, Award } from 'lucide-react';
+import { GitMerge, X, Clock, Calendar, MapPin, Trophy, Activity, Award, Info } from 'lucide-react';
 import { ScoreEntryModal } from './ScoreEntryModal';
 import { LocalTime } from '@/components/LocalTime';
 import { getCategoryTheme } from '@/lib/utils/colors';
@@ -38,6 +38,7 @@ interface Match {
 export function BracketTree({ matches, tournamentId, readOnly = false }: { matches: Match[]; tournamentId: string; readOnly?: boolean }) {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [selectedDetailMatch, setSelectedDetailMatch] = useState<Match | null>(null);
+  const [futureDetailMatch, setFutureDetailMatch] = useState<Match | null>(null);
 
   // Compute match codes for this category's matches
   const matchCodeMap = React.useMemo(() => {
@@ -82,9 +83,6 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
 
   const getPlayerLabel = (p: Participant | null, match: Match) => {
     if (!p) {
-      if (match.bracketRound && match.bracketRound > 1) {
-        return `Winner of R${match.bracketRound - 1}`;
-      }
       return "TBA";
     }
     const prefix = p.teamName ? `[${p.teamName}] ` : "";
@@ -152,14 +150,18 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                       <div 
                         onClick={() => {
                           if (!readOnly) {
-                            if (canEditScore(match)) setSelectedMatch(match);
+                            if (canEditScore(match)) {
+                              setSelectedMatch(match);
+                            } else {
+                              setFutureDetailMatch(match);
+                            }
                           } else {
                             setSelectedDetailMatch(match);
                           }
                         }}
                         className={`w-56 bg-white border border-y-slate-200 border-r-slate-200 border-l-[6px] rounded-lg shadow-sm overflow-hidden z-10 flex flex-col relative transition-all
                           ${theme.borderL}
-                          ${isCardClickable ? 'cursor-pointer hover:shadow-md hover:border-r-slate-300 hover:border-y-slate-300 hover:-translate-y-0.5' : ''}
+                          cursor-pointer hover:shadow-md hover:border-r-slate-300 hover:border-y-slate-300 hover:-translate-y-0.5
                           ${match.status === 'COMPLETED' ? 'opacity-95' : ''}
                         `}
                       >
@@ -429,6 +431,95 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
             <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
               <button 
                 onClick={() => setSelectedDetailMatch(null)}
+                className="py-2.5 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin: Future match detail popup */}
+      {futureDetailMatch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white relative">
+              <div className="absolute top-4 right-4 flex items-center gap-3">
+                {matchCodeMap.get(futureDetailMatch.id) && (
+                  <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
+                    {matchCodeMap.get(futureDetailMatch.id)}
+                  </span>
+                )}
+                <button onClick={() => setFutureDetailMatch(null)} className="text-white/60 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black uppercase tracking-widest text-white/90">
+                  {futureDetailMatch.category.name}
+                </span>
+                <span className="text-[10px] bg-black/20 px-2 py-0.5 rounded font-black uppercase tracking-widest text-white/90">
+                  {getRoundName(futureDetailMatch.bracketRound ? futureDetailMatch.bracketRound - 1 : 0, columns.length)}
+                </span>
+              </div>
+              <h2 className="text-xl font-black tracking-tight mt-1">Upcoming Match</h2>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800 font-medium">
+                  This match is waiting for earlier round results. Participants will be determined once their preceding matches are completed.
+                </p>
+              </div>
+
+              {/* Matchup */}
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded bg-slate-200 text-[10px] font-black text-slate-500 flex items-center justify-center">1</div>
+                  <span className={`text-sm font-bold ${futureDetailMatch.participant1 ? 'text-slate-800' : 'text-slate-400 italic'}`}>
+                    {futureDetailMatch.participant1?.name || 'TBA'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 pl-2">
+                  <span className="text-[10px] font-black text-slate-300 uppercase">vs</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded bg-slate-200 text-[10px] font-black text-slate-500 flex items-center justify-center">2</div>
+                  <span className={`text-sm font-bold ${futureDetailMatch.participant2 ? 'text-slate-800' : 'text-slate-400 italic'}`}>
+                    {futureDetailMatch.participant2?.name || 'TBA'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Court & Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <div>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Court</p>
+                    <p className="text-sm font-bold text-slate-800">{futureDetailMatch.court?.name || 'Unassigned'}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center gap-2.5">
+                  <Clock className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</p>
+                    <p className="text-sm font-bold text-slate-800">
+                      {futureDetailMatch.scheduledStartTime ? <LocalTime date={futureDetailMatch.scheduledStartTime} /> : 'TBA'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setFutureDetailMatch(null)}
                 className="py-2.5 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md"
               >
                 Close
