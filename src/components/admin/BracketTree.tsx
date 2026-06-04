@@ -273,12 +273,19 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
               : selectedDetailMatch.status === 'IN_PROGRESS' ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
               : 'bg-gradient-to-r from-slate-700 to-slate-800'
             }`}>
-              <button 
-                onClick={() => setSelectedDetailMatch(null)} 
-                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="absolute top-4 right-4 flex items-center gap-3">
+                {matchCodeMap.get(selectedDetailMatch.id) && (
+                  <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
+                    {matchCodeMap.get(selectedDetailMatch.id)}
+                  </span>
+                )}
+                <button 
+                  onClick={() => setSelectedDetailMatch(null)} 
+                  className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
               
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black uppercase tracking-widest text-white/90">

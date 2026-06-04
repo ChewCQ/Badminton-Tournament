@@ -145,6 +145,44 @@ export function TimetableGrid({
     return "TBA";
   };
 
+  const getRoundName = (match: Match) => {
+    if (match.bracketRound === null || match.bracketRound === undefined) {
+      return `Round ${match.roundNumber}`;
+    }
+    
+    const catMatches = matches.filter(m => m.category.id === match.category.id && m.bracketRound !== null);
+    if (catMatches.length === 0) return `Round ${match.roundNumber}`;
+    
+    const maxRound = Math.max(...catMatches.map(m => m.bracketRound as number));
+    const roundsFromFinal = maxRound - match.bracketRound;
+    
+    if (roundsFromFinal === 0) return "Final";
+    if (roundsFromFinal === 1) return "Semifinal";
+    if (roundsFromFinal === 2) return "Quarterfinal";
+    
+    const playersInRound = Math.pow(2, roundsFromFinal + 1);
+    return `Round of ${playersInRound}`;
+  };
+
+  const getShortRoundName = (match: Match) => {
+    if (match.bracketRound === null || match.bracketRound === undefined) {
+      return `R${match.roundNumber}`;
+    }
+    
+    const catMatches = matches.filter(m => m.category.id === match.category.id && m.bracketRound !== null);
+    if (catMatches.length === 0) return `R${match.roundNumber}`;
+    
+    const maxRound = Math.max(...catMatches.map(m => m.bracketRound as number));
+    const roundsFromFinal = maxRound - match.bracketRound;
+    
+    if (roundsFromFinal === 0) return "Final";
+    if (roundsFromFinal === 1) return "SF";
+    if (roundsFromFinal === 2) return "QF";
+    
+    const playersInRound = Math.pow(2, roundsFromFinal + 1);
+    return `R${playersInRound}`;
+  };
+
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, matchId: string) => {
     e.dataTransfer.setData("matchId", matchId);
@@ -408,7 +446,7 @@ export function TimetableGrid({
                             title="Double-click to enter score"
                           >
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate mb-1">
-                              {match.category.name} • R{match.roundNumber}
+                              {match.category.name} • {getShortRoundName(match)}
                             </div>
                             <div className="text-xs font-bold text-slate-800 truncate leading-tight">
                               {getPlayerLabel(match.participant1, match)}
@@ -484,7 +522,7 @@ export function TimetableGrid({
                       {match.category.name}
                     </span>
                     <span className="text-[10px] font-black text-slate-400 uppercase">
-                      R{match.roundNumber}
+                      {getShortRoundName(match)}
                     </span>
                   </div>
                   
@@ -539,7 +577,7 @@ export function TimetableGrid({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-300 text-xs font-bold uppercase tracking-wider">{detailMatch.category.name} • Round {detailMatch.roundNumber}</p>
+              <p className="text-slate-300 text-xs font-bold uppercase tracking-wider">{detailMatch.category.name} • {getRoundName(detailMatch)}</p>
               <h2 className="text-xl font-black tracking-tight mt-1">Upcoming Match</h2>
             </div>
 
