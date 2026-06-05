@@ -10,11 +10,11 @@ export default async function TournamentDashboardLayout({
 }) {
   const { id } = await params;
   const navigation = [
-    { name: "Overview", href: `/admin/tournaments/${id}` },
-    { name: "Participants", href: `/admin/tournaments/${id}/participants` },
-    { name: "Draws & Formats", href: `/admin/tournaments/${id}/draws` },
-    { name: "Live Courts", href: `/admin/tournaments/${id}/courts` },
-    { name: "Settings", href: `/admin/tournaments/${id}/settings` },
+    { name: "Overview", href: `/hq-admin-v2/tournaments/${id}` },
+    { name: "Participants", href: `/hq-admin-v2/tournaments/${id}/participants` },
+    { name: "Draws & Formats", href: `/hq-admin-v2/tournaments/${id}/draws` },
+    { name: "Live Courts", href: `/hq-admin-v2/tournaments/${id}/courts` },
+    { name: "Settings", href: `/hq-admin-v2/tournaments/${id}/settings` },
   ];
 
   return (

@@ -22,7 +22,7 @@ export default function AdminLayout({
 
         <nav className="flex-1 px-4 space-y-1">
           <Link
-            href="/admin"
+            href="/hq-admin-v2"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 font-semibold border border-indigo-500/20"
           >
             <LayoutDashboard className="w-4 h-4" />

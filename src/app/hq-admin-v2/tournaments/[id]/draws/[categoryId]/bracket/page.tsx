@@ -36,7 +36,7 @@ export default async function BracketViewPage({
         
         {/* Header */}
         <div>
-          <Link href={`/admin/tournaments/${id}/draws`} className="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-600 mb-4 transition-colors">
+          <Link href={`/hq-admin-v2/tournaments/${id}/draws`} className="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-600 mb-4 transition-colors">
             <ChevronLeft className="w-4 h-4" />
             Back to Draw Manager
           </Link>

@@ -14,7 +14,7 @@ export async function createSponsor(tournamentId: string, data: { name: string; 
       },
     });
     
-    revalidatePath(`/admin/tournaments/${tournamentId}/display`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/display`);
     revalidatePath(`/tournaments/${tournamentId}/tv`);
     
     return { success: true };
@@ -30,7 +30,7 @@ export async function deleteSponsor(tournamentId: string, sponsorId: string) {
       where: { id: sponsorId },
     });
     
-    revalidatePath(`/admin/tournaments/${tournamentId}/display`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/display`);
     revalidatePath(`/tournaments/${tournamentId}/tv`);
     
     return { success: true };
@@ -47,7 +47,7 @@ export async function updateSponsorTier(tournamentId: string, sponsorId: string,
       data: { tier },
     });
     
-    revalidatePath(`/admin/tournaments/${tournamentId}/display`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/display`);
     revalidatePath(`/tournaments/${tournamentId}`);
     revalidatePath(`/tournaments/${tournamentId}/tv`);
     
@@ -89,7 +89,7 @@ export async function moveSponsor(tournamentId: string, sponsorId: string, direc
       )
     );
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/display`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/display`);
     revalidatePath(`/tournaments/${tournamentId}`);
     revalidatePath(`/tournaments/${tournamentId}/tv`);
     

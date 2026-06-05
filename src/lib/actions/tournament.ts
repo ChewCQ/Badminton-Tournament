@@ -37,7 +37,7 @@ export async function createTournament(data: CreateTournamentInput) {
     });
 
     // 3. Revalidate the admin dashboard so the new tournament appears immediately
-    revalidatePath("/admin");
+    revalidatePath("/hq-admin-v2");
 
     return { success: true, tournamentId: tournament.id };
   } catch (error) {
@@ -109,9 +109,9 @@ export async function updateTournamentDetails(id: string, data: {
       },
     });
     
-    revalidatePath(`/admin/tournaments/${id}`);
-    revalidatePath(`/admin/tournaments/${id}/settings`);
-    revalidatePath("/admin");
+    revalidatePath(`/hq-admin-v2/tournaments/${id}`);
+    revalidatePath(`/hq-admin-v2/tournaments/${id}/settings`);
+    revalidatePath("/hq-admin-v2");
     
     return { success: true };
   } catch (error) {
@@ -127,7 +127,7 @@ export async function deleteTournament(id: string) {
       where: { id }
     });
     
-    revalidatePath("/admin");
+    revalidatePath("/hq-admin-v2");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete tournament:", error);

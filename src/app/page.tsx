@@ -77,7 +77,7 @@ export default async function HomePage() {
 
       <footer className="mt-auto pt-16 pb-4 w-full text-center">
         <a 
-          href="/admin" 
+          href="/hq-admin-v2" 
           className="text-xs text-slate-300 hover:text-slate-500 transition-colors font-medium"
         >
           Admin Login

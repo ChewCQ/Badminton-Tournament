@@ -21,7 +21,7 @@ export function DeleteTournamentButton({ tournamentId, tournamentName }: { tourn
       const res = await deleteTournament(tournamentId);
       if (res.success) {
         // Redirection is handled by server action revalidatePath/redirect or we can push
-        router.push("/admin");
+        router.push("/hq-admin-v2");
       } else {
         alert(res.error || "Failed to delete tournament");
       }

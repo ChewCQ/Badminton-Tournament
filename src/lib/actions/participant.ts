@@ -66,8 +66,8 @@ export async function bulkImportParticipants(
     });
 
     // Revalidate paths so the UI updates instantly
-    revalidatePath(`/admin/tournaments/${tournamentId}/participants`);
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
 
     return { success: true, count: importedCount };
   } catch (error) {
@@ -81,8 +81,8 @@ export async function deleteParticipant(participantId: string, tournamentId: str
     await prisma.participant.delete({
       where: { id: participantId }
     });
-    revalidatePath(`/admin/tournaments/${tournamentId}/participants`);
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
     return { success: true };
   } catch (error) {
     console.error("Failed to delete participant:", error);
@@ -111,8 +111,8 @@ export async function updateParticipant(participantId: string, tournamentId: str
       });
     }
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/participants`);
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update participant:", error);

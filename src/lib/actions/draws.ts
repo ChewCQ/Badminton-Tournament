@@ -10,7 +10,7 @@ export async function updateParticipantSeed(participantId: string, seed: number 
       data: { seed },
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update seed:", error);
@@ -25,8 +25,8 @@ export async function updateMatchTime(matchId: string, scheduledStartTime: Date,
       data: { scheduledStartTime },
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
-    revalidatePath(`/admin/tournaments/${tournamentId}/courts`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update match time:", error);
@@ -99,8 +99,8 @@ export async function swapParticipants(
     // Execute massive transaction
     await prisma.$transaction(updates);
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws/${categoryId}/bracket`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws/${categoryId}/bracket`);
     
     return { success: true };
   } catch (error) {

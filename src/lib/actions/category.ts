@@ -50,7 +50,7 @@ export async function createCategory(data: CreateCategoryInput) {
     });
 
     // 4. Revalidate the tournament details page
-    revalidatePath(`/admin/tournaments/${parsedData.tournamentId}`);
+    revalidatePath(`/hq-admin-v2/tournaments/${parsedData.tournamentId}`);
 
     return { success: true, categoryId: category.id };
   } catch (error) {
@@ -79,7 +79,7 @@ export async function deleteCategory(tournamentId: string, categoryId: string) {
       where: { id: categoryId },
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}`);
 
     return { success: true };
   } catch (error) {

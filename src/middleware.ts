@@ -2,33 +2,35 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  // Only apply basic auth to /admin and /api/tournaments routes
-  if (req.nextUrl.pathname.startsWith('/admin') || req.nextUrl.pathname.startsWith('/api/tournaments') || req.nextUrl.pathname.startsWith('/api/upload')) {
-    const basicAuth = req.headers.get('authorization');
+  const pathname = req.nextUrl.pathname;
 
-    if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const [user, pwd] = atob(authValue).split(':');
+  // Paths that require authentication
+  const isAdminPath = pathname.startsWith('/hq-admin-v2');
+  const isProtectedApi = pathname.startsWith('/api/tournaments') || pathname.startsWith('/api/upload');
+  const isLoginPage = pathname === '/hq-admin-v2/login';
 
-      // Check against environment variable. Default to 'admin' if not set in dev
-      const expectedPassword = process.env.ADMIN_PASSWORD || 'admin';
+  if (isAdminPath || isProtectedApi) {
+    // Check for our secure session cookie
+    const sessionCookie = req.cookies.get('admin_session');
+    const isAuthenticated = sessionCookie?.value === 'authenticated';
 
-      if (user === 'admin' && pwd === expectedPassword) {
-        return NextResponse.next();
+    if (!isAuthenticated && !isLoginPage) {
+      if (isProtectedApi) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
+      // Redirect unauthenticated users to the hidden login page
+      return NextResponse.redirect(new URL('/hq-admin-v2/login', req.url));
     }
 
-    return new NextResponse('Auth required', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
-      },
-    });
+    if (isAuthenticated && isLoginPage) {
+      // If already logged in, don't show the login page again
+      return NextResponse.redirect(new URL('/hq-admin-v2', req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/tournaments/:path*', '/api/upload/:path*'],
+  matcher: ['/hq-admin-v2/:path*', '/api/tournaments/:path*', '/api/upload/:path*'],
 };

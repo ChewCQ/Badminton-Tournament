@@ -28,32 +28,32 @@ export function SidebarNav({ tournamentId }: SidebarNavProps) {
   const navItems = [
     {
       name: "Dashboard Hub",
-      href: `/admin/tournaments/${tournamentId}`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}`,
       icon: LayoutDashboard,
     },
     {
       name: "Participants",
-      href: `/admin/tournaments/${tournamentId}/participants`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}/participants`,
       icon: Users,
     },
     {
       name: "Live Courts",
-      href: `/admin/tournaments/${tournamentId}/courts`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}/courts`,
       icon: MonitorPlay,
     },
     {
       name: "Draw Manager",
-      href: `/admin/tournaments/${tournamentId}/draws`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}/draws`,
       icon: GitMerge,
     },
     {
       name: "Sponsor & Display",
-      href: `/admin/tournaments/${tournamentId}/display`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}/display`,
       icon: Megaphone,
     },
     {
       name: "Settings",
-      href: `/admin/tournaments/${tournamentId}/settings`,
+      href: `/hq-admin-v2/tournaments/${tournamentId}/settings`,
       icon: Settings,
     },
   ];
@@ -62,7 +62,7 @@ export function SidebarNav({ tournamentId }: SidebarNavProps) {
     <div className="w-64 h-screen bg-slate-900 border-r border-slate-800 flex flex-col fixed left-0 top-0">
       {/* Brand Header */}
       <div className="p-6 border-b border-slate-800">
-        <Link href="/admin" className="flex items-center gap-3 group">
+        <Link href="/hq-admin-v2" className="flex items-center gap-3 group">
           <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
             <Trophy className="w-4 h-4 text-white" />
           </div>
@@ -106,7 +106,13 @@ export function SidebarNav({ tournamentId }: SidebarNavProps) {
 
       {/* Footer */}
       <div className="p-4 border-t border-slate-800">
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-all w-full text-left group">
+        <button 
+          onClick={async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/hq-admin-v2/login';
+          }}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-all w-full text-left group"
+        >
           <LogOut className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors" />
           Exit Tournament
         </button>

@@ -59,7 +59,7 @@ export default async function TournamentDetailsPage({
       {/* Header section */}
       <div>
         <div className="flex items-center gap-2 text-zinc-500 text-sm font-medium mb-3">
-          <Link href="/admin" className="hover:text-zinc-300 transition-colors">Admin</Link>
+          <Link href="/hq-admin-v2" className="hover:text-zinc-300 transition-colors">Admin</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-zinc-300">Tournaments</span>
         </div>

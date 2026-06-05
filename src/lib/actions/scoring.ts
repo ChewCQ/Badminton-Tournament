@@ -91,7 +91,7 @@ export async function saveMatchScore(
       }
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}`);
     return { success: true, winnerId, status: newStatus };
   } catch (error) {
     console.error("Failed to save match score:", error);
@@ -132,7 +132,7 @@ export async function markWalkover(
       }
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}`);
     return { success: true };
   } catch (error) {
     console.error("Failed to mark walkover:", error);

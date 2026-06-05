@@ -24,7 +24,7 @@ export async function reassignMatch(
         where: { id: matchId },
         data: { courtId: null, scheduledStartTime: null, scheduledEndTime: null },
       });
-      revalidatePath(`/admin/tournaments/${tournamentId}/courts`);
+      revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
       return { success: true };
     }
 
@@ -136,7 +136,7 @@ export async function reassignMatch(
     // Run all updates in a transaction
     await prisma.$transaction(updates);
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/courts`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
     return { success: true };
   } catch (error) {
     console.error("Failed to reassign match:", error);
@@ -162,7 +162,7 @@ export async function resetDraw(categoryId: string, tournamentId: string) {
       data: { poolId: null }
     });
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/draws`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
     return { success: true };
   } catch (error) {
     console.error("Failed to reset draw:", error);
@@ -293,7 +293,7 @@ export async function globalAutoSchedule(tournamentId: string, categoryPriorityI
 
     await prisma.$transaction(updates);
 
-    revalidatePath(`/admin/tournaments/${tournamentId}/courts`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
     return { success: true };
   } catch (error) {
     console.error("Failed global auto schedule:", error);

@@ -66,7 +66,7 @@ export default async function DrawManagerHub({
                       <Users className="w-4 h-4" /> {cat._count.participants} Players
                     </span>
                     <Link
-                      href={`/admin/tournaments/${id}/draws/${cat.id}/seeding`}
+                      href={`/hq-admin-v2/tournaments/${id}/draws/${cat.id}/seeding`}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2"
                     >
                       Seed & Generate
@@ -109,14 +109,14 @@ export default async function DrawManagerHub({
                     </span>
                     <div className="flex flex-col gap-2 w-full mt-4">
                       <Link
-                        href={`/admin/tournaments/${id}/draws/${cat.id}/bracket`}
+                        href={`/hq-admin-v2/tournaments/${id}/draws/${cat.id}/bracket`}
                         className="w-full px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors border border-indigo-100 shadow-sm flex items-center justify-center gap-2"
                       >
                         <GitMerge className="w-3.5 h-3.5" />
                         View Bracket
                       </Link>
                       <Link
-                        href={`/admin/tournaments/${id}/draws/${cat.id}/matches`}
+                        href={`/hq-admin-v2/tournaments/${id}/draws/${cat.id}/matches`}
                         className="w-full px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors border border-slate-200 shadow-sm flex items-center justify-center gap-2"
                       >
                         <Clock className="w-3.5 h-3.5" />

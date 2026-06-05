@@ -79,7 +79,7 @@ export default async function AdminDashboard() {
 
                   <div className="mt-auto pt-4 border-t border-zinc-800 flex justify-end">
                     <Link
-                      href={`/admin/tournaments/${t.id}`}
+                      href={`/hq-admin-v2/tournaments/${t.id}`}
                       className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-wider"
                     >
                       Manage &rarr;
