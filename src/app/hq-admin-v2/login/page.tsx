@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, ArrowRight, ShieldCheck, Trophy } from "lucide-react";
+import { Lock, ArrowRight, ShieldCheck, Trophy, KeyRound } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
+  const [totpCode, setTotpCode] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function AdminLoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, totpCode }),
       });
 
       if (res.ok) {
@@ -70,8 +71,26 @@ export default function AdminLoginPage() {
                   autoFocus
                 />
               </div>
+              
+              <div className="relative mt-4">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <KeyRound className="h-5 w-5 text-slate-500" />
+                </div>
+                <input
+                  type="text"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="6-digit Authenticator Code"
+                  className="w-full bg-slate-950 border border-slate-800 text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block pl-11 p-4 transition-all tracking-widest text-center text-lg"
+                  required
+                  maxLength={6}
+                  pattern="\d{6}"
+                  autoComplete="one-time-code"
+                />
+              </div>
+              
               {error && (
-                <p className="mt-3 text-sm font-bold text-rose-500 flex items-center justify-center gap-1.5 bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+                <p className="mt-4 text-sm font-bold text-rose-500 flex items-center justify-center gap-1.5 bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
                   {error}
                 </p>
               )}
