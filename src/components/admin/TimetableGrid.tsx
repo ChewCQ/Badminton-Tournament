@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition, useEffect, useRef } from "react";
 import { reassignMatch } from "@/lib/actions/schedule";
-import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon, X, Clock, Info } from "lucide-react";
+import { updateCourtName } from "@/lib/actions/court";
+import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon, X, Clock, Info, Edit2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
@@ -53,6 +54,8 @@ export function TimetableGrid({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [detailMatch, setDetailMatch] = useState<Match | null>(null);
+  const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
+  const [editingCourtName, setEditingCourtName] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Extract unique categories from matches for the modal
@@ -305,6 +308,26 @@ export function TimetableGrid({
     });
   };
 
+  const handleCourtNameSave = (courtId: string) => {
+    if (!editingCourtName.trim()) {
+      setEditingCourtId(null);
+      return;
+    }
+    startTransition(async () => {
+      await updateCourtName(courtId, editingCourtName, tournamentId);
+      setEditingCourtId(null);
+      router.refresh();
+    });
+  };
+
+  const handleCourtNameKeyDown = (e: React.KeyboardEvent, courtId: string) => {
+    if (e.key === "Enter") {
+      handleCourtNameSave(courtId);
+    } else if (e.key === "Escape") {
+      setEditingCourtId(null);
+    }
+  };
+
   // Split matches
   const scheduledMatches = matches.filter(m => m.courtId && m.scheduledStartTime && m.scheduledEndTime);
   const queueMatches = matches.filter(m => !m.courtId);
@@ -378,11 +401,43 @@ export function TimetableGrid({
                 return (
                   <div key={court.id} className="flex relative group min-h-[110px]">
                     {/* Court Label (Sticky Left) */}
-                    <div className="w-[150px] sticky left-0 bg-white/95 backdrop-blur-sm border-r border-slate-200 flex flex-col justify-center px-4 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] space-y-2">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
-                        <span className="font-bold text-sm text-slate-800 truncate">{court.name}</span>
-                      </div>
+                    <div className="w-[150px] sticky left-0 bg-white/95 backdrop-blur-sm border-r border-slate-200 flex flex-col justify-center px-4 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] space-y-2 group/court">
+                      {editingCourtId === court.id ? (
+                        <div className="flex items-center gap-1 w-full">
+                          <input
+                            autoFocus
+                            type="text"
+                            value={editingCourtName}
+                            onChange={(e) => setEditingCourtName(e.target.value)}
+                            onKeyDown={(e) => handleCourtNameKeyDown(e, court.id)}
+                            onBlur={() => handleCourtNameSave(court.id)}
+                            className="w-full text-sm font-bold text-slate-800 bg-white border border-indigo-300 rounded px-1 py-0.5 outline-none focus:ring-2 focus:ring-indigo-500/50"
+                          />
+                          <button 
+                            onMouseDown={(e) => { e.preventDefault(); handleCourtNameSave(court.id); }}
+                            className="text-green-600 hover:bg-green-50 p-1 rounded transition-colors shrink-0"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                            <span className="font-bold text-sm text-slate-800 truncate">{court.name}</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setEditingCourtName(court.name);
+                              setEditingCourtId(court.id);
+                            }}
+                            className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover/court:opacity-100 transition-opacity p-1 hover:bg-indigo-50 rounded shrink-0"
+                            title="Edit Court Name"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText(`${window.location.origin}/tournaments/${tournamentId}/umpire/${court.id}`);
