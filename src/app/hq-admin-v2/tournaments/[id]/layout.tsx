@@ -23,8 +23,8 @@ export default async function TournamentDashboardLayout({
       <SidebarNav tournamentId={id} />
 
       {/* Main Content Area - padded to account for the fixed 64 (256px) sidebar */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
-        <main className="flex-1 p-8 overflow-x-hidden">
+      <div className="flex-1 ml-64 flex flex-col min-h-screen min-w-0">
+        <main className="flex-1 p-8 min-w-0">
           {children}
         </main>
       </div>
