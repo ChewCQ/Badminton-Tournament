@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MonitorPlay, GitMerge } from "lucide-react";
+import { Home, MonitorPlay, GitMerge, Calendar } from "lucide-react";
 function cn(...inputs: (string | boolean | undefined | null)[]) {
   return inputs.filter(Boolean).join(" ");
 }
@@ -28,6 +28,12 @@ export function PublicNav({ tournamentId }: { tournamentId: string }) {
       name: "Draws",
       href: `/tournaments/${tournamentId}/draws`,
       icon: GitMerge,
+      exact: false
+    },
+    {
+      name: "Schedule",
+      href: `/tournaments/${tournamentId}/schedule`,
+      icon: Calendar,
       exact: false
     }
   ];

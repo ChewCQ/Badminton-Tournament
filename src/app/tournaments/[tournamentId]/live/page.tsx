@@ -2,6 +2,7 @@ import React from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Activity, Clock, MapPin } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
 
@@ -108,7 +109,7 @@ export default async function PublicLiveMatchesPage({
                 {liveMatch ? (
                   <div className="space-y-5">
                     {/* Main Matchup Card with Category Theme Color */}
-                    <div className={`p-6 rounded-2xl border ${getCategoryColorBg(liveMatch.category.id)} shadow-sm relative overflow-hidden`}>
+                    <Link href={`/tournaments/${tournamentId}/draws/${liveMatch.category.id}`} className={`block p-6 rounded-2xl border ${getCategoryColorBg(liveMatch.category.id)} shadow-sm relative overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer`}>
                       <div className="flex justify-between items-center gap-2 mb-4">
                         <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border ${getCategoryBadge(liveMatch.category.id)}`}>
                           {liveMatch.category.name}
@@ -136,13 +137,13 @@ export default async function PublicLiveMatchesPage({
                           {formatName(liveMatch.participant2)}
                         </div>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Up Next Card with Category Theme Color */}
                     {upNextMatch && (
                       <div className="mt-6 pt-4 border-t border-slate-100">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Up Next</p>
-                        <div className={`rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${getCategoryColorBg(upNextMatch.category.id)} shadow-sm`}>
+                        <Link href={`/tournaments/${tournamentId}/draws/${upNextMatch.category.id}`} className={`block rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${getCategoryColorBg(upNextMatch.category.id)} shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer`}>
                           <div className="truncate text-sm font-bold text-slate-800 flex-1">
                             {formatName(upNextMatch.participant1)} <span className="text-slate-400 font-bold italic mx-1">vs</span> {formatName(upNextMatch.participant2)}
                           </div>
@@ -161,7 +162,7 @@ export default async function PublicLiveMatchesPage({
                               </span>
                             )}
                           </div>
-                        </div>
+                        </Link>
                       </div>
                     )}
                   </div>

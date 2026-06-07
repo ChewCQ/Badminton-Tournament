@@ -45,9 +45,9 @@ export function TimetableGrid({
   tournamentStartDate,
 }: {
   matches: Match[];
-  courts: Court[];
   tournamentId: string;
   tournamentStartDate: Date;
+  isReadOnly?: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -348,20 +348,24 @@ export function TimetableGrid({
       <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col">
         <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-2xl">
           <div>
-            <h2 className="font-black text-lg text-slate-800 tracking-tight">Live Court Timetable</h2>
-            <p className="text-xs font-medium text-slate-500 mt-1">Drag matches to reassign courts or adjust times.</p>
+            <h2 className="font-black text-lg text-slate-800 tracking-tight">
+              {isReadOnly ? "Tournament Schedule" : "Live Court Timetable"}
+            </h2>
+            {!isReadOnly && (
+              <p className="text-xs font-medium text-slate-500 mt-1">Drag matches to reassign courts or adjust times.</p>
+            )}
           </div>
         </div>
 
-        {/* Timetable Container with Horizontal Scroll */}
-        <div ref={scrollContainerRef} className="overflow-x-auto relative w-full h-full pb-4">
+        {/* Timetable Container with Both Scrolls */}
+        <div ref={scrollContainerRef} className="overflow-auto max-h-[70vh] relative w-full pb-4">
           <div 
             className="relative" 
             style={{ width: `${TIMELINE_WIDTH + 150}px` }} // +150px for the sticky court labels
           >
             
             {/* X-Axis Header (Hours & Minutes) */}
-            <div className="flex border-b border-slate-200 bg-slate-50/90 sticky top-0 z-20 h-10 ml-[150px]">
+            <div className="flex border-b border-slate-200 bg-slate-50/95 backdrop-blur sticky top-0 z-30 h-10 ml-[150px]">
               <div className="relative w-full h-full">
                 {Array.from({ length: TOTAL_HOURS * 4 }).map((_, i) => {
                   const h = START_HOUR + Math.floor(i / 4);
@@ -402,7 +406,7 @@ export function TimetableGrid({
                   <div key={court.id} className="flex relative group min-h-[110px]">
                     {/* Court Label (Sticky Left) */}
                     <div className="w-[150px] sticky left-0 bg-white/95 backdrop-blur-sm border-r border-slate-200 flex flex-col justify-center px-4 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] space-y-2 group/court">
-                      {editingCourtId === court.id ? (
+                      {editingCourtId === court.id && !isReadOnly ? (
                         <div className="flex items-center gap-1 w-full">
                           <input
                             autoFocus
@@ -426,37 +430,41 @@ export function TimetableGrid({
                             <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
                             <span className="font-bold text-sm text-slate-800 truncate">{court.name}</span>
                           </div>
-                          <button
-                            onClick={() => {
-                              setEditingCourtName(court.name);
-                              setEditingCourtId(court.id);
-                            }}
-                            className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover/court:opacity-100 transition-opacity p-1 hover:bg-indigo-50 rounded shrink-0"
-                            title="Edit Court Name"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!isReadOnly && (
+                            <button
+                              onClick={() => {
+                                setEditingCourtName(court.name);
+                                setEditingCourtId(court.id);
+                              }}
+                              className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover/court:opacity-100 transition-opacity p-1 hover:bg-indigo-50 rounded shrink-0"
+                              title="Edit Court Name"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       )}
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/tournaments/${tournamentId}/umpire/${court.id}`);
-                          alert("Umpire link copied to clipboard!");
-                        }}
-                        className="text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 py-1 px-2 rounded-md transition-colors w-full text-center flex items-center justify-center gap-1"
-                        title="Copy Umpire Interface Link"
-                      >
-                        <LinkIcon className="w-3 h-3 shrink-0" /> Copy Link
-                      </button>
+                      {!isReadOnly && (
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/tournaments/${tournamentId}/umpire/${court.id}`);
+                            alert("Umpire link copied to clipboard!");
+                          }}
+                          className="text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 py-1 px-2 rounded-md transition-colors w-full text-center flex items-center justify-center gap-1"
+                          title="Copy Umpire Interface Link"
+                        >
+                          <LinkIcon className="w-3 h-3 shrink-0" /> Copy Link
+                        </button>
+                      )}
                     </div>
 
-                    {/* Timeline Track (The entire track is one free drop zone) */}
+                    {/* Timeline Track */}
                     <div 
                       className="relative flex-1 bg-slate-50/10 transition-colors duration-150"
-                      onDragOver={handleDragOver}
-                      onDragEnter={handleDragEnterZone}
-                      onDragLeave={handleDragLeaveZone}
-                      onDrop={(e) => handleDropOnCourt(e, court.id)}
+                      onDragOver={isReadOnly ? undefined : handleDragOver}
+                      onDragEnter={isReadOnly ? undefined : handleDragEnterZone}
+                      onDragLeave={isReadOnly ? undefined : handleDragLeaveZone}
+                      onDrop={isReadOnly ? undefined : (e) => handleDropOnCourt(e, court.id)}
                     >
                       {/* Grid Lines */}
                       {hourMarkers.map((hour) => {
@@ -483,22 +491,23 @@ export function TimetableGrid({
                         return (
                           <div
                             key={match.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, match.id)}
-                            onDragEnd={handleDragEnd}
-                            onDoubleClick={() => {
+                            draggable={!isReadOnly}
+                            onDragStart={isReadOnly ? undefined : (e) => handleDragStart(e, match.id)}
+                            onDragEnd={isReadOnly ? undefined : handleDragEnd}
+                            onDoubleClick={isReadOnly ? undefined : () => {
                               if (match.participant1 && match.participant2) {
                                 setSelectedMatch(match);
                               } else {
                                 setDetailMatch(match);
                               }
                             }}
-                            className={`absolute top-2 bottom-2 rounded-lg shadow-sm border-y border-r border-l-[6px] cursor-grab active:cursor-grabbing px-2 py-1.5 overflow-hidden z-10 transition-all hover:shadow-md
+                            className={`absolute top-2 bottom-2 rounded-lg shadow-sm border-y border-r border-l-[6px] px-2 py-1.5 overflow-hidden z-10 transition-all
+                              ${isReadOnly ? '' : 'cursor-grab active:cursor-grabbing hover:shadow-md'}
                               ${catColor}
                               ${isCompleted ? 'bg-slate-50 border-y-slate-200 border-r-slate-200 opacity-80' : 'bg-white border-y-slate-200 border-r-slate-200 hover:bg-slate-50'}
                             `}
                             style={style}
-                            title="Double-click to enter score"
+                            title={isReadOnly ? match.category.name : "Double-click to enter score"}
                           >
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate mb-1">
                               {match.category.name} • {getShortRoundName(match)}
@@ -531,73 +540,75 @@ export function TimetableGrid({
       </div>
 
       {/* Sidebar: Match Queue */}
-      <div 
-        className="w-full xl:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm h-[calc(100vh-8rem)] sticky top-8 flex flex-col overflow-hidden"
-        onDragOver={handleDragOver}
-        onDrop={handleDropOnQueue}
-      >
-        <div className="p-4 border-b border-slate-100 bg-slate-50">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-black text-lg text-slate-800 tracking-tight flex items-center gap-2">
-              <Users className="w-5 h-5 text-indigo-500" />
-              Unscheduled Queue
-            </h2>
+      {!isReadOnly && (
+        <div 
+          className="w-full xl:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm h-[calc(100vh-8rem)] sticky top-8 flex flex-col overflow-hidden"
+          onDragOver={handleDragOver}
+          onDrop={handleDropOnQueue}
+        >
+          <div className="p-4 border-b border-slate-100 bg-slate-50">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-black text-lg text-slate-800 tracking-tight flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-500" />
+                Unscheduled Queue
+              </h2>
+            </div>
+            
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <Sparkles className="w-4 h-4" />
+              Auto-Schedule Timeline
+            </button>
           </div>
           
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5"
-          >
-            <Sparkles className="w-4 h-4" />
-            Auto-Schedule Timeline
-          </button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
-          {queueMatches.length === 0 ? (
-            <div className="text-center py-10 px-4">
-              <AlertCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm font-medium">No unscheduled matches.</p>
-            </div>
-          ) : (
-            queueMatches.map((match) => {
-              const catColor = getCategoryColor(match.category.id);
-              const catBg = getCategoryColorBg(match.category.id);
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
+            {queueMatches.length === 0 ? (
+              <div className="text-center py-10 px-4">
+                <AlertCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-slate-500 text-sm font-medium">No unscheduled matches.</p>
+              </div>
+            ) : (
+              queueMatches.map((match) => {
+                const catColor = getCategoryColor(match.category.id);
+                const catBg = getCategoryColorBg(match.category.id);
 
-              return (
-                <div 
-                  key={match.id} 
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, match.id)}
-                  onDragEnd={handleDragEnd}
-                  className={`bg-white border-y border-r border-slate-200 border-l-[6px] hover:border-r-indigo-300 hover:border-y-indigo-300 rounded-xl p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md ${catColor}`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${catBg}`}>
-                      {match.category.name}
-                    </span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase">
-                      {getShortRoundName(match)}
-                    </span>
+                return (
+                  <div 
+                    key={match.id} 
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, match.id)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-white border-y border-r border-slate-200 border-l-[6px] hover:border-r-indigo-300 hover:border-y-indigo-300 rounded-xl p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md ${catColor}`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${catBg}`}>
+                        {match.category.name}
+                      </span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase">
+                        {getShortRoundName(match)}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 mt-3">
+                      <div className="text-sm font-bold text-slate-800 truncate">
+                        {getPlayerLabel(match.participant1, match)}
+                      </div>
+                      <div className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-slate-300" /> vs
+                      </div>
+                      <div className="text-sm font-bold text-slate-800 truncate">
+                        {getPlayerLabel(match.participant2, match)}
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="space-y-1 mt-3">
-                    <div className="text-sm font-bold text-slate-800 truncate">
-                      {getPlayerLabel(match.participant1, match)}
-                    </div>
-                    <div className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-slate-300" /> vs
-                    </div>
-                    <div className="text-sm font-bold text-slate-800 truncate">
-                      {getPlayerLabel(match.participant2, match)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <AutoScheduleModal 
         tournamentId={tournamentId}
