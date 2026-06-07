@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
 import { getCategoryColor, getCategoryColorBg } from "@/lib/utils/colors";
-import { generateMatchCodePrefix } from "@/lib/utils/matchCode";
+import { generateMatchCodePrefix, generateMatchCodeMap } from "@/lib/utils/matchCode";
 import { LocalTime } from "@/components/LocalTime";
 
 // Types
@@ -23,6 +23,8 @@ interface Match {
   id: string;
   roundNumber: number;
   bracketRound: number | null;
+  bracketPosition: number | null;
+  poolId: string | null;
   scheduledStartTime: Date | null;
   scheduledEndTime: Date | null;
   courtId: string | null;
@@ -73,29 +75,9 @@ export function TimetableGrid({
     }
   });
 
-  // Compute match codes: group matches by category, sort chronologically, assign numbers
+  // Compute match codes: group matches by category and sort deterministically by draw structure
   const matchCodeMap = React.useMemo(() => {
-    const map = new Map<string, string>();
-    // Group all matches by categoryId
-    const byCat = new Map<string, Match[]>();
-    for (const m of matches) {
-      const catId = m.category.id;
-      if (!byCat.has(catId)) byCat.set(catId, []);
-      byCat.get(catId)!.push(m);
-    }
-    // For each category, sort by scheduledStartTime (nulls last), then assign numbers
-    for (const [catId, catMatches] of byCat) {
-      const prefix = generateMatchCodePrefix(catMatches[0].category.name);
-      const sorted = [...catMatches].sort((a, b) => {
-        const ta = a.scheduledStartTime ? new Date(a.scheduledStartTime).getTime() : Infinity;
-        const tb = b.scheduledStartTime ? new Date(b.scheduledStartTime).getTime() : Infinity;
-        return ta - tb;
-      });
-      sorted.forEach((m, idx) => {
-        map.set(m.id, `${prefix}-${idx + 1}`);
-      });
-    }
-    return map;
+    return generateMatchCodeMap(matches);
   }, [matches]);
   const START_HOUR = 8;
   const END_HOUR = 20;

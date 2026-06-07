@@ -88,3 +88,90 @@ export function generateMatchCodePrefix(categoryName: string): string {
   // Last resort: just use the prefix
   return prefix;
 }
+
+interface MatchForCode {
+  id: string;
+  roundNumber: number;
+  bracketRound: number | null;
+  bracketPosition: number | null;
+  poolId: string | null;
+  status: string;
+  category: {
+    id: string;
+    name: string;
+  };
+}
+
+/**
+ * Generates a stable map of match ID -> match code (e.g. "BS10-1")
+ * based on the draw structure (pool play or bracket round/position) instead of scheduled time.
+ * BYE matches are skipped/ignored for numbering.
+ */
+export function generateMatchCodeMap(matches: MatchForCode[]): Map<string, string> {
+  const map = new Map<string, string>();
+  if (matches.length === 0) return map;
+
+  // Group all matches by categoryId
+  const byCat = new Map<string, MatchForCode[]>();
+  for (const m of matches) {
+    const catId = m.category.id;
+    if (!byCat.has(catId)) byCat.set(catId, []);
+    byCat.get(catId)!.push(m);
+  }
+
+  // For each category, sort the matches deterministically and assign codes
+  for (const [catId, catMatches] of byCat) {
+    const prefix = generateMatchCodePrefix(catMatches[0].category.name);
+
+    // Filter out BYE matches
+    const playableMatches = catMatches.filter(m => m.status !== 'BYE');
+
+    // Sort deterministically based on structure
+    const sorted = [...playableMatches].sort((a, b) => {
+      // 1. Pool play vs Knockout Bracket (Pool matches always go first)
+      const aIsPool = !!a.poolId;
+      const bIsPool = !!b.poolId;
+      if (aIsPool && !bIsPool) return -1;
+      if (!aIsPool && bIsPool) return 1;
+
+      if (aIsPool && bIsPool) {
+        // Sort pool matches: by poolId first, then by roundNumber
+        if (a.poolId !== b.poolId) {
+          return (a.poolId || '').localeCompare(b.poolId || '');
+        }
+        if (a.roundNumber !== b.roundNumber) {
+          return a.roundNumber - b.roundNumber;
+        }
+        return a.id.localeCompare(b.id);
+      }
+
+      // Knockout bracket matches: sort by bracketRound ascending (R1, QF, SF, Final),
+      // then by bracketPosition ascending (top-to-bottom within the round)
+      if (a.bracketRound !== null && b.bracketRound !== null) {
+        if (a.bracketRound !== b.bracketRound) {
+          return a.bracketRound - b.bracketRound;
+        }
+        const posA = a.bracketPosition ?? 0;
+        const posB = b.bracketPosition ?? 0;
+        if (posA !== posB) {
+          return posA - posB;
+        }
+        return a.id.localeCompare(b.id);
+      }
+
+      // Fallbacks
+      if (a.roundNumber !== b.roundNumber) {
+        return a.roundNumber - b.roundNumber;
+      }
+      return a.id.localeCompare(b.id);
+    });
+
+    // Assign sequential numbers
+    sorted.forEach((m, idx) => {
+      map.set(m.id, `${prefix}-${idx + 1}`);
+    });
+  }
+
+  return map;
+}
+

@@ -5,7 +5,7 @@ import { GitMerge, X, Clock, Calendar, MapPin, Trophy, Activity, Award, Info } f
 import { ScoreEntryModal } from './ScoreEntryModal';
 import { LocalTime } from '@/components/LocalTime';
 import { getCategoryTheme } from '@/lib/utils/colors';
-import { generateMatchCodePrefix } from '@/lib/utils/matchCode';
+import { generateMatchCodePrefix, generateMatchCodeMap } from '@/lib/utils/matchCode';
 
 interface Participant {
   id: string;
@@ -25,6 +25,7 @@ interface Match {
   roundNumber: number;
   bracketRound: number | null;
   bracketPosition: number | null;
+  poolId: string | null;
   status: string;
   winnerId: string | null;
   participant1: Participant | null;
@@ -40,20 +41,9 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
   const [selectedDetailMatch, setSelectedDetailMatch] = useState<Match | null>(null);
   const [futureDetailMatch, setFutureDetailMatch] = useState<Match | null>(null);
 
-  // Compute match codes for this category's matches
+  // Compute match codes for this category's matches using stable draw-structure based sorting
   const matchCodeMap = React.useMemo(() => {
-    const map = new Map<string, string>();
-    if (matches.length === 0) return map;
-    const prefix = generateMatchCodePrefix(matches[0].category.name);
-    const sorted = [...matches].sort((a, b) => {
-      const ta = a.scheduledStartTime ? new Date(a.scheduledStartTime).getTime() : Infinity;
-      const tb = b.scheduledStartTime ? new Date(b.scheduledStartTime).getTime() : Infinity;
-      return ta - tb;
-    });
-    sorted.forEach((m, idx) => {
-      map.set(m.id, `${prefix}-${idx + 1}`);
-    });
-    return map;
+    return generateMatchCodeMap(matches);
   }, [matches]);
 
   // getCategoryTheme is now imported from @/lib/utils/colors
