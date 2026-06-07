@@ -488,7 +488,7 @@ export function TimetableGrid({
                           : null;
                         
                         const catColor = getCategoryColor(match.category.id);
-                        const isCompleted = match.status === 'COMPLETED';
+                        const isCompleted = match.status === 'COMPLETED' || match.status === 'WALKOVER';
 
                         return (
                           <div
@@ -496,13 +496,20 @@ export function TimetableGrid({
                             draggable={!isReadOnly}
                             onDragStart={isReadOnly ? undefined : (e) => handleDragStart(e, match.id)}
                             onDragEnd={isReadOnly ? undefined : handleDragEnd}
-                            onDoubleClick={isReadOnly ? undefined : () => {
+                            onClick={isReadOnly ? () => {
                               if (match.participant1 && match.participant2) {
                                 setSelectedMatch(match);
                               } else {
                                 setDetailMatch(match);
                               }
-                            }}
+                            } : undefined}
+                            onDoubleClick={!isReadOnly ? () => {
+                              if (match.participant1 && match.participant2) {
+                                setSelectedMatch(match);
+                              } else {
+                                setDetailMatch(match);
+                              }
+                            } : undefined}
                             className={`absolute top-2 bottom-2 rounded-lg shadow-sm border-y border-r border-l-[6px] px-2 py-1.5 overflow-hidden z-10 transition-all
                               ${isReadOnly ? '' : 'cursor-grab active:cursor-grabbing hover:shadow-md'}
                               ${catColor}
@@ -626,6 +633,7 @@ export function TimetableGrid({
           isOpen={true}
           onClose={() => setSelectedMatch(null)}
           matchCode={matchCodeMap.get(selectedMatch.id)}
+          isReadOnly={isReadOnly}
         />
       )}
 
@@ -699,13 +707,24 @@ export function TimetableGrid({
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-3">
               <button
                 onClick={() => setDetailMatch(null)}
-                className="py-2.5 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md"
+                className="py-2.5 px-6 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-colors text-sm shadow-sm"
               >
                 Close
               </button>
+              {isReadOnly && (
+                <button
+                  onClick={() => {
+                    setDetailMatch(null);
+                    router.push(`/tournaments/${tournamentId}/draws/${detailMatch.category.id}`);
+                  }}
+                  className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors text-sm shadow-md flex items-center gap-2"
+                >
+                  View in Draw
+                </button>
+              )}
             </div>
           </div>
         </div>

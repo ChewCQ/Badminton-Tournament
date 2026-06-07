@@ -16,7 +16,7 @@ interface MatchForScoring {
   id: string;
   participant1: { id: string; name: string } | null;
   participant2: { id: string; name: string } | null;
-  category: { name: string; bestOf: number };
+  category: { id: string; name: string; bestOf: number };
   sets: { setNumber: number; score1: number; score2: number }[];
   status: string;
   court: { name: string } | null;
@@ -30,12 +30,14 @@ export function ScoreEntryModal({
   isOpen,
   onClose,
   matchCode,
+  isReadOnly,
 }: {
   match: MatchForScoring;
   tournamentId: string;
   isOpen: boolean;
   onClose: () => void;
   matchCode?: string;
+  isReadOnly?: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -149,7 +151,8 @@ export function ScoreEntryModal({
                 type="number"
                 min={0}
                 value={s.score1 || ""}
-                onChange={e => updateScore(i, "score1", e.target.value)}
+                readOnly={isReadOnly}
+                onChange={e => !isReadOnly && updateScore(i, "score1", e.target.value)}
                 className={`w-full h-12 text-center text-lg font-black rounded-xl border-2 transition-all outline-none
                   ${s.score1 > s.score2 && (s.score1 > 0 || s.score2 > 0)
                     ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
@@ -157,7 +160,7 @@ export function ScoreEntryModal({
                     ? 'border-red-200 bg-red-50/50 text-red-400'
                     : 'border-slate-200 bg-slate-50 text-slate-700'
                   }
-                  focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100`}
+                  ${isReadOnly ? 'opacity-80' : 'focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100'}`}
               />
             ))}
           </div>
@@ -182,7 +185,8 @@ export function ScoreEntryModal({
                 type="number"
                 min={0}
                 value={s.score2 || ""}
-                onChange={e => updateScore(i, "score2", e.target.value)}
+                readOnly={isReadOnly}
+                onChange={e => !isReadOnly && updateScore(i, "score2", e.target.value)}
                 className={`w-full h-12 text-center text-lg font-black rounded-xl border-2 transition-all outline-none
                   ${s.score2 > s.score1 && (s.score1 > 0 || s.score2 > 0)
                     ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
@@ -190,7 +194,7 @@ export function ScoreEntryModal({
                     ? 'border-red-200 bg-red-50/50 text-red-400'
                     : 'border-slate-200 bg-slate-50 text-slate-700'
                   }
-                  focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100`}
+                  ${isReadOnly ? 'opacity-80' : 'focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100'}`}
               />
             ))}
           </div>
@@ -207,7 +211,7 @@ export function ScoreEntryModal({
         </div>
 
         {/* Special Outcomes */}
-        {(match.participant1 && match.participant2) && (
+        {!isReadOnly && (match.participant1 && match.participant2) && (
           <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Special Outcomes</p>
             <div className="flex flex-wrap gap-2">
@@ -231,24 +235,46 @@ export function ScoreEntryModal({
 
         {/* Footer */}
         <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
-          <button
-            onClick={onClose}
-            disabled={isPending}
-            className="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isPending}
-            className="flex-1 py-3 px-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200"
-          >
-            {isPending ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
-            ) : (
-              "Save Score"
-            )}
-          </button>
+          {isReadOnly ? (
+            <>
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  router.push(`/tournaments/${tournamentId}/draws/${match.category.id}`);
+                }}
+                className="flex-1 py-3 px-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200"
+              >
+                View in Draw
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onClose}
+                disabled={isPending}
+                className="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isPending}
+                className="flex-1 py-3 px-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200"
+              >
+                {isPending ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                ) : (
+                  "Save Score"
+                )}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

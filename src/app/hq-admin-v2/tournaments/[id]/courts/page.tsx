@@ -26,7 +26,7 @@ export default async function LiveCourtController({
   const matches = await prisma.match.findMany({
     where: {
       category: { tournamentId: id },
-      status: { in: ["SCHEDULED", "IN_PROGRESS", "COMPLETED"] },
+      status: { in: ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "WALKOVER"] },
     },
     include: {
       participant1: true,

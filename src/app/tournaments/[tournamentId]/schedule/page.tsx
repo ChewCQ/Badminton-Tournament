@@ -29,7 +29,7 @@ export default async function PublicSchedulePage({
   const matches = await prisma.match.findMany({
     where: {
       category: { tournamentId: tournament.id },
-      status: { in: ["SCHEDULED", "IN_PROGRESS", "COMPLETED"] },
+      status: { in: ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "WALKOVER"] },
       courtId: { not: null },
     },
     include: {
