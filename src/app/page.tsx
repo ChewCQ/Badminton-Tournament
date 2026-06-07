@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export const metadata = {
   title: "HEXA Badminton Tournament",

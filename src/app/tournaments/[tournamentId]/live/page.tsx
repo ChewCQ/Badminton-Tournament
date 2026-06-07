@@ -26,7 +26,11 @@ export default async function PublicLiveMatchesPage({
         include: {
           matches: {
             where: {
-              status: { in: ['IN_PROGRESS', 'SCHEDULED'] }
+              status: { in: ['IN_PROGRESS', 'SCHEDULED'] },
+              OR: [
+                { scheduledEndTime: { gt: new Date() } },
+                { scheduledEndTime: null }
+              ]
             },
             orderBy: {
               scheduledStartTime: 'asc'

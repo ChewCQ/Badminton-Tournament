@@ -112,6 +112,7 @@ export async function updateTournamentDetails(id: string, data: {
     revalidatePath(`/hq-admin-v2/tournaments/${id}`);
     revalidatePath(`/hq-admin-v2/tournaments/${id}/settings`);
     revalidatePath("/hq-admin-v2");
+    revalidatePath("/");
     
     return { success: true };
   } catch (error) {
@@ -128,6 +129,7 @@ export async function deleteTournament(id: string) {
     });
     
     revalidatePath("/hq-admin-v2");
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete tournament:", error);
