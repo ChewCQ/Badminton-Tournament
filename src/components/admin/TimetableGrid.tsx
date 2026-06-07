@@ -347,7 +347,7 @@ export function TimetableGrid({
       )}
 
       {/* Gantt Chart (Left Side) */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col">
+      <div className="flex-1 min-w-0 max-w-full overflow-hidden bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col">
         <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-2xl">
           <div>
             <h2 className="font-black text-lg text-slate-800 tracking-tight">
