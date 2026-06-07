@@ -3,7 +3,7 @@
 import React, { useState, useTransition, useEffect, useRef } from "react";
 import { reassignMatch } from "@/lib/actions/schedule";
 import { updateCourtName } from "@/lib/actions/court";
-import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon, X, Clock, Info, Edit2, Check } from "lucide-react";
+import { Users, AlertCircle, MapPin, Loader2, Sparkles, Link as LinkIcon, X, Clock, Info, Edit2, Check, PanelRightClose } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AutoScheduleModal } from "./AutoScheduleModal";
 import { ScoreEntryModal } from "./ScoreEntryModal";
@@ -58,6 +58,9 @@ export function TimetableGrid({
   const [detailMatch, setDetailMatch] = useState<Match | null>(null);
   const [editingCourtId, setEditingCourtId] = useState<string | null>(null);
   const [editingCourtName, setEditingCourtName] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Use the container to grab width/scroll to sync if needed
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Extract unique categories from matches for the modal
@@ -357,6 +360,15 @@ export function TimetableGrid({
               <p className="text-xs font-medium text-slate-500 mt-1">Drag matches to reassign courts or adjust times.</p>
             )}
           </div>
+          {!isReadOnly && (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:text-slate-900 transition-colors shrink-0"
+            >
+              <PanelRightClose className={`w-4 h-4 transition-transform ${!isSidebarOpen ? "rotate-180" : ""}`} />
+              <span className="hidden sm:inline">{isSidebarOpen ? "Hide Queue" : "Show Queue"}</span>
+            </button>
+          )}
         </div>
 
         {/* Timetable Container with Both Scrolls */}
@@ -558,7 +570,7 @@ export function TimetableGrid({
       </div>
 
       {/* Sidebar: Match Queue */}
-      {!isReadOnly && (
+      {!isReadOnly && isSidebarOpen && (
         <div 
           className="w-full xl:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm h-[calc(100vh-8rem)] sticky top-8 flex flex-col overflow-hidden"
           onDragOver={handleDragOver}
