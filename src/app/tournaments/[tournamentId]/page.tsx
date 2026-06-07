@@ -6,6 +6,8 @@ import { Calendar, MapPin, Trophy, ChevronRight, Activity } from "lucide-react";
 import Link from "next/link";
 import { LocalTime } from "@/components/LocalTime";
 
+import { AutoRefresh } from "@/components/AutoRefresh";
+
 export const revalidate = 300; // Cache for 5 minutes to reduce DB network transfer
 
 export default async function PublicTournamentOverview({
@@ -72,6 +74,7 @@ export default async function PublicTournamentOverview({
 
   return (
     <div className="w-full bg-white min-h-screen">
+      <AutoRefresh intervalMs={60000} />
       
       {/* Slim Brand Bar */}
       <div className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-3 flex items-center justify-between">

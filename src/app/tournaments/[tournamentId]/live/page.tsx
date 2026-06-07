@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Activity, Clock, MapPin } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
 
+import { AutoRefresh } from "@/components/AutoRefresh";
+
 export const revalidate = 120; // auto-refresh every 2 minutes (reduced from 30s to save DB network transfer)
 
 import { getCategoryColorBg, getCategoryBadge } from '@/lib/utils/colors'; 
@@ -29,6 +31,7 @@ export default async function PublicLiveMatchesPage({
             where: {
               status: { in: ['IN_PROGRESS', 'SCHEDULED'] },
               OR: [
+                { status: 'IN_PROGRESS' },
                 { scheduledEndTime: { gt: new Date() } },
                 { scheduledEndTime: null }
               ]
@@ -58,6 +61,7 @@ export default async function PublicLiveMatchesPage({
 
   return (
     <div className="max-w-3xl mx-auto bg-slate-50 min-h-screen border-x border-slate-100 pb-8">
+      <AutoRefresh intervalMs={60000} />
       {/* Header */}
       <div className="bg-white border-b border-slate-200 p-6">
         <div className="flex items-center gap-3 mb-1">

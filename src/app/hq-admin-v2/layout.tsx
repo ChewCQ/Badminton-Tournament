@@ -8,7 +8,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black text-zinc-100 font-sans flex">
+    <div className="min-h-screen bg-black text-zinc-100 font-sans flex overflow-x-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-zinc-950 border-r border-zinc-800/50 flex-shrink-0 flex flex-col">
         <div className="p-6">
@@ -58,7 +58,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto relative">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
         <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-900/10 to-transparent pointer-events-none" />
         <div className="p-8 md:p-12 max-w-7xl mx-auto relative z-10">
           {children}
