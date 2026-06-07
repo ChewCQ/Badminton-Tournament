@@ -361,124 +361,133 @@ export function TimetableGrid({
 
         {/* Timetable Container with Both Scrolls */}
         <div ref={scrollContainerRef} className="overflow-auto max-h-[70vh] relative w-full pb-4">
-          <div 
-            className="relative" 
-            style={{ width: `${TIMELINE_WIDTH + 150}px` }} // +150px for the sticky court labels
-          >
+          <div className="flex min-w-max">
             
-            {/* X-Axis Header (Hours & Minutes) */}
-            <div className="flex border-b border-slate-200 bg-slate-50/95 backdrop-blur sticky top-0 z-30 h-10 ml-[150px]">
-              <div className="relative w-full h-full">
-                {Array.from({ length: TOTAL_HOURS * 4 }).map((_, i) => {
-                  const h = START_HOUR + Math.floor(i / 4);
-                  const m = (i % 4) * 15;
-                  const leftPx = (h - START_HOUR) * 60 * PIXELS_PER_MINUTE + m * PIXELS_PER_MINUTE;
-                  
-                  if (m === 0) {
-                    return (
-                      <div 
-                        key={`${h}:${m}`} 
-                        className="absolute top-0 bottom-0 border-l border-slate-300 pl-1.5 pt-1.5"
-                        style={{ left: `${leftPx}px` }}
-                      >
-                        <span className="text-[11px] font-black text-slate-600">{h}:00</span>
+            {/* Left Frozen Column */}
+            <div className="w-[150px] flex-shrink-0 sticky left-0 z-40 bg-white border-r border-slate-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+              {/* Top-left corner (sticky vertically too!) */}
+              <div className="h-10 border-b border-slate-200 bg-slate-50/95 backdrop-blur sticky top-0 z-50"></div>
+              
+              {/* Court labels */}
+              <div className="divide-y divide-slate-100">
+                {courts.map(court => (
+                  <div key={`label-${court.id}`} className="h-[110px] flex flex-col justify-center px-4 space-y-2 group/court">
+                    {editingCourtId === court.id && !isReadOnly ? (
+                      <div className="flex items-center gap-1 w-full">
+                        <input
+                          autoFocus
+                          type="text"
+                          value={editingCourtName}
+                          onChange={(e) => setEditingCourtName(e.target.value)}
+                          onKeyDown={(e) => handleCourtNameKeyDown(e, court.id)}
+                          onBlur={() => handleCourtNameSave(court.id)}
+                          className="w-full text-sm font-bold text-slate-800 bg-white border border-indigo-300 rounded px-1 py-0.5 outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        />
+                        <button 
+                          onMouseDown={(e) => { e.preventDefault(); handleCourtNameSave(court.id); }}
+                          className="text-green-600 hover:bg-green-50 p-1 rounded transition-colors shrink-0"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                    );
-                  } else {
-                    return (
-                      <div 
-                        key={`${h}:${m}`} 
-                        className="absolute top-0 bottom-0 border-l border-slate-200 pl-1 pt-3.5"
-                        style={{ left: `${leftPx}px` }}
-                      >
-                        <span className="text-[9px] font-bold text-slate-400">:{m}</span>
+                    ) : (
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                          <span className="font-bold text-sm text-slate-800 truncate">{court.name}</span>
+                        </div>
+                        {!isReadOnly && (
+                          <button
+                            onClick={() => {
+                              setEditingCourtName(court.name);
+                              setEditingCourtId(court.id);
+                            }}
+                            className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover/court:opacity-100 transition-opacity p-1 hover:bg-indigo-50 rounded shrink-0"
+                            title="Edit Court Name"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
-                    );
-                  }
-                })}
+                    )}
+                    {!isReadOnly && (
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}/tournaments/${tournamentId}/umpire/${court.id}`);
+                          alert("Umpire link copied to clipboard!");
+                        }}
+                        className="text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 py-1 px-2 rounded-md transition-colors w-full text-center flex items-center justify-center gap-1"
+                        title="Copy Umpire Interface Link"
+                      >
+                        <LinkIcon className="w-3 h-3 shrink-0" /> Copy Link
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Y-Axis Grid (Courts) */}
-            <div className="divide-y divide-slate-100">
-              {courts.map(court => {
-                const courtMatches = scheduledMatches.filter(m => m.courtId === court.id);
-
-                return (
-                  <div key={court.id} className="flex relative group min-h-[110px]">
-                    {/* Court Label (Sticky Left) */}
-                    <div className="w-[150px] sticky left-0 bg-white/95 backdrop-blur-sm border-r border-slate-200 flex flex-col justify-center px-4 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] space-y-2 group/court">
-                      {editingCourtId === court.id && !isReadOnly ? (
-                        <div className="flex items-center gap-1 w-full">
-                          <input
-                            autoFocus
-                            type="text"
-                            value={editingCourtName}
-                            onChange={(e) => setEditingCourtName(e.target.value)}
-                            onKeyDown={(e) => handleCourtNameKeyDown(e, court.id)}
-                            onBlur={() => handleCourtNameSave(court.id)}
-                            className="w-full text-sm font-bold text-slate-800 bg-white border border-indigo-300 rounded px-1 py-0.5 outline-none focus:ring-2 focus:ring-indigo-500/50"
-                          />
-                          <button 
-                            onMouseDown={(e) => { e.preventDefault(); handleCourtNameSave(court.id); }}
-                            className="text-green-600 hover:bg-green-50 p-1 rounded transition-colors shrink-0"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2 overflow-hidden">
-                            <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
-                            <span className="font-bold text-sm text-slate-800 truncate">{court.name}</span>
-                          </div>
-                          {!isReadOnly && (
-                            <button
-                              onClick={() => {
-                                setEditingCourtName(court.name);
-                                setEditingCourtId(court.id);
-                              }}
-                              className="text-slate-400 hover:text-indigo-600 opacity-0 group-hover/court:opacity-100 transition-opacity p-1 hover:bg-indigo-50 rounded shrink-0"
-                              title="Edit Court Name"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      )}
-                      {!isReadOnly && (
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin}/tournaments/${tournamentId}/umpire/${court.id}`);
-                            alert("Umpire link copied to clipboard!");
-                          }}
-                          className="text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 py-1 px-2 rounded-md transition-colors w-full text-center flex items-center justify-center gap-1"
-                          title="Copy Umpire Interface Link"
+            {/* Right Timeline Grid */}
+            <div className="relative" style={{ width: `${TIMELINE_WIDTH}px` }}>
+              {/* Time Header (sticky vertically) */}
+              <div className="flex border-b border-slate-200 bg-slate-50/95 backdrop-blur sticky top-0 z-30 h-10">
+                <div className="relative w-full h-full">
+                  {Array.from({ length: TOTAL_HOURS * 4 }).map((_, i) => {
+                    const h = START_HOUR + Math.floor(i / 4);
+                    const m = (i % 4) * 15;
+                    const leftPx = (h - START_HOUR) * 60 * PIXELS_PER_MINUTE + m * PIXELS_PER_MINUTE;
+                    
+                    if (m === 0) {
+                      return (
+                        <div 
+                          key={`${h}:${m}`} 
+                          className="absolute top-0 bottom-0 border-l border-slate-300 pl-1.5 pt-1.5"
+                          style={{ left: `${leftPx}px` }}
                         >
-                          <LinkIcon className="w-3 h-3 shrink-0" /> Copy Link
-                        </button>
-                      )}
-                    </div>
+                          <span className="text-[11px] font-black text-slate-600">{h}:00</span>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div 
+                          key={`${h}:${m}`} 
+                          className="absolute top-0 bottom-0 border-l border-slate-200 pl-1 pt-3.5"
+                          style={{ left: `${leftPx}px` }}
+                        >
+                          <span className="text-[9px] font-bold text-slate-400">:{m}</span>
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
 
-                    {/* Timeline Track */}
-                    <div 
-                      className="relative flex-1 bg-slate-50/10 transition-colors duration-150"
-                      onDragOver={isReadOnly ? undefined : handleDragOver}
-                      onDragEnter={isReadOnly ? undefined : handleDragEnterZone}
-                      onDragLeave={isReadOnly ? undefined : handleDragLeaveZone}
-                      onDrop={isReadOnly ? undefined : (e) => handleDropOnCourt(e, court.id)}
-                    >
-                      {/* Grid Lines */}
-                      {hourMarkers.map((hour) => {
-                        const leftPx = (hour - START_HOUR) * 60 * PIXELS_PER_MINUTE;
-                        return (
-                          <div 
-                            key={hour} 
-                            className="absolute top-0 bottom-0 border-l border-slate-100 pointer-events-none"
-                            style={{ left: `${leftPx}px` }}
-                          />
-                        );
-                      })}
+              {/* Rows */}
+              <div className="divide-y divide-slate-100">
+                {courts.map(court => {
+                  const courtMatches = scheduledMatches.filter(m => m.courtId === court.id);
+
+                  return (
+                    <div key={`row-${court.id}`} className="h-[110px] relative group">
+                      {/* Timeline Track */}
+                      <div 
+                        className="absolute inset-0 bg-slate-50/10 transition-colors duration-150"
+                        onDragOver={isReadOnly ? undefined : handleDragOver}
+                        onDragEnter={isReadOnly ? undefined : handleDragEnterZone}
+                        onDragLeave={isReadOnly ? undefined : handleDragLeaveZone}
+                        onDrop={isReadOnly ? undefined : (e) => handleDropOnCourt(e, court.id)}
+                      >
+                        {/* Grid Lines */}
+                        {hourMarkers.map((hour) => {
+                          const leftPx = (hour - START_HOUR) * 60 * PIXELS_PER_MINUTE;
+                          return (
+                            <div 
+                              key={hour} 
+                              className="absolute top-0 bottom-0 border-l border-slate-100 pointer-events-none"
+                              style={{ left: `${leftPx}px` }}
+                            />
+                          );
+                        })}
 
                       {/* Match Blocks */}
                       {courtMatches.map(match => {
@@ -538,12 +547,12 @@ export function TimetableGrid({
                           </div>
                         );
                       })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-
           </div>
         </div>
       </div>
