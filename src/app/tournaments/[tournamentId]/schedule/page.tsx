@@ -60,7 +60,7 @@ export default async function PublicSchedulePage({
       <TimetableGrid 
         matches={matches} 
         courts={tournament.courts} 
-        tournamentId={tournament.id}
+        tournamentId={tournamentId} // Pass slug so router.push goes to correct public URL
         tournamentStartDate={tournament.startDate}
         isReadOnly={true}
       />

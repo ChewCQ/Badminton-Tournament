@@ -60,7 +60,7 @@ export default async function PublicTournamentOverview({
         select: { name: true }
       },
       category: {
-        select: { name: true }
+        select: { id: true, name: true }
       },
     },
     orderBy: [
@@ -217,18 +217,26 @@ export default async function PublicTournamentOverview({
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {globalMatches.map((match) => (
-                    <tr key={match.id} className="hover:bg-slate-50/50 transition-colors text-xs sm:text-sm">
-                      <td className="px-4 sm:px-6 py-4 text-slate-600 font-medium">
-                        {match.scheduledStartTime ? <LocalTime date={match.scheduledStartTime} /> : 'TBD'}
+                    <tr key={match.id} className="hover:bg-slate-50/50 transition-colors text-xs sm:text-sm group cursor-pointer">
+                      <td className="p-0">
+                        <Link href={`/tournaments/${tournamentId}/draws/${match.category.id}`} className="block px-4 sm:px-6 py-4 text-slate-600 font-medium h-full w-full">
+                          {match.scheduledStartTime ? <LocalTime date={match.scheduledStartTime} /> : 'TBD'}
+                        </Link>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 font-black text-emerald-600">
-                        {match.court?.name || 'Unassigned'}
+                      <td className="p-0">
+                        <Link href={`/tournaments/${tournamentId}/draws/${match.category.id}`} className="block px-4 sm:px-6 py-4 font-black text-emerald-600 h-full w-full">
+                          {match.court?.name || 'Unassigned'}
+                        </Link>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-slate-500 font-medium">
-                        {match.category.name}
+                      <td className="p-0">
+                        <Link href={`/tournaments/${tournamentId}/draws/${match.category.id}`} className="block px-4 sm:px-6 py-4 text-slate-500 font-medium group-hover:text-indigo-600 transition-colors h-full w-full">
+                          {match.category.name}
+                        </Link>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-slate-800 hidden sm:table-cell">
-                        {match.participant1 ? match.participant1.name : "TBD"} <span className="text-slate-300 font-bold mx-2">VS</span> {match.participant2 ? match.participant2.name : "TBD"}
+                      <td className="p-0 hidden sm:table-cell">
+                        <Link href={`/tournaments/${tournamentId}/draws/${match.category.id}`} className="block px-4 sm:px-6 py-4 text-slate-800 h-full w-full">
+                          {match.participant1 ? match.participant1.name : "TBD"} <span className="text-slate-300 font-bold mx-2">VS</span> {match.participant2 ? match.participant2.name : "TBD"}
+                        </Link>
                       </td>
                     </tr>
                   ))}
