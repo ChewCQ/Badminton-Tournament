@@ -43,6 +43,7 @@ export function TimetableGrid({
   courts,
   tournamentId,
   tournamentStartDate,
+  isReadOnly = false,
 }: {
   matches: Match[];
   courts: Court[];
