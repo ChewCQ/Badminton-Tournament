@@ -304,6 +304,7 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                 )}
               </div>
             </div>
+            </div>
 
             {/* Content */}
             <div className="p-6 space-y-6">
