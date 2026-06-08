@@ -186,6 +186,7 @@ model Participant {
   pool   Pool?   @relation(fields: [poolId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
+  walkover Boolean @default(false)
 
   // Relations
   playerLinks PlayerOnParticipant[]

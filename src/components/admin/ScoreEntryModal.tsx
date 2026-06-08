@@ -104,26 +104,31 @@ export function ScoreEntryModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
-          <div className="absolute top-4 right-4 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 sm:p-6 text-white relative">
+          {/* Close button - always top right */}
+          <button onClick={onClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/60 hover:text-white transition-colors z-10">
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Category & Best-of */}
+          <p className="text-indigo-200 text-xs font-bold uppercase tracking-wider pr-8">{match.category.name} • Best of {bestOf}</p>
+
+          {/* Title */}
+          <h2 className="text-xl font-black tracking-tight mt-1 mb-2">Enter Score</h2>
+
+          {/* Match code + Court/Time row - flex-wrap to prevent overlap on mobile */}
+          <div className="flex flex-wrap items-center gap-2">
             {(matchCode || match.matchCode) && (
-              <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
+              <span className="bg-white/25 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-xs font-black tracking-wider border border-white/20 shadow-lg">
                 {matchCode || match.matchCode}
               </span>
             )}
-            <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="flex items-center gap-3 mb-1">
-            <p className="text-indigo-200 text-xs font-bold uppercase tracking-wider">{match.category.name} • Best of {bestOf}</p>
             {match.court && match.scheduledStartTime && (
-              <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-bold uppercase tracking-widest text-white/90">
+              <span className="bg-white/20 text-white/90 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest">
                 {match.court.name} @ <LocalTime date={match.scheduledStartTime} />
               </span>
             )}
           </div>
-          <h2 className="text-xl font-black tracking-tight">Enter Score</h2>
         </div>
 
         {/* Score Grid */}
