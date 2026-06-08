@@ -119,3 +119,100 @@ export async function updateParticipant(participantId: string, tournamentId: str
     return { success: false, error: "Failed to update participant." };
   }
 }
+
+export async function toggleWalkover(participantId: string, tournamentId: string, walkover: boolean) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. Update the participant's walkover field
+      await tx.participant.update({
+        where: { id: participantId },
+        data: { walkover }
+      });
+
+      if (walkover) {
+        // Find all SCHEDULED matches involving this participant
+        const matchesToWalkover = await tx.match.findMany({
+          where: {
+            OR: [
+              { participant1Id: participantId },
+              { participant2Id: participantId }
+            ],
+            status: 'SCHEDULED'
+          }
+        });
+
+        for (const match of matchesToWalkover) {
+          const winnerId = match.participant1Id === participantId ? match.participant2Id : match.participant1Id;
+          
+          if (!winnerId) continue; // If opponent is TBA, we can't walkover yet
+
+          // Mark match as WALKOVER
+          await tx.match.update({
+            where: { id: match.id },
+            data: {
+              status: 'WALKOVER',
+              winnerId: winnerId
+            }
+          });
+
+          // Advance the opponent
+          if (match.nextMatchId && match.nextMatchSlot) {
+            const updateField = match.nextMatchSlot === "SLOT_1" ? "participant1Id" : "participant2Id";
+            await tx.match.update({
+              where: { id: match.nextMatchId },
+              data: { [updateField]: winnerId }
+            });
+          }
+        }
+      } else {
+        // Undo walkovers: find matches marked as WALKOVER involving this participant
+        const walkoverMatches = await tx.match.findMany({
+          where: {
+            OR: [
+              { participant1Id: participantId },
+              { participant2Id: participantId }
+            ],
+            status: 'WALKOVER'
+          }
+        });
+
+        for (const match of walkoverMatches) {
+          const winnerId = match.winnerId;
+
+          // Revert match back to SCHEDULED
+          await tx.match.update({
+            where: { id: match.id },
+            data: {
+              status: 'SCHEDULED',
+              winnerId: null
+            }
+          });
+
+          // Remove the opponent from the next match
+          if (match.nextMatchId && match.nextMatchSlot && winnerId) {
+            const updateField = match.nextMatchSlot === "SLOT_1" ? "participant1Id" : "participant2Id";
+            
+            // Check if the opponent actually advanced to the next match
+            const nextMatch = await tx.match.findUnique({ where: { id: match.nextMatchId }});
+            // We need to satisfy TS index signature, but we know it's one of these fields.
+            const currentParticipantInSlot = updateField === "participant1Id" ? nextMatch?.participant1Id : nextMatch?.participant2Id;
+            
+            if (currentParticipantInSlot === winnerId) {
+                await tx.match.update({
+                    where: { id: match.nextMatchId },
+                    data: { [updateField]: null }
+                });
+            }
+          }
+        }
+      }
+    });
+
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/participants`);
+    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to toggle walkover:", error);
+    return { success: false, error: "Failed to toggle walkover status." };
+  }
+}

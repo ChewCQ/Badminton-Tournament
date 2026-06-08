@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { BulkImportForm } from "@/components/admin/BulkImportForm";
-import { deleteParticipant, updateParticipant } from "@/lib/actions/participant";
+import { deleteParticipant, updateParticipant, toggleWalkover } from "@/lib/actions/participant";
 import { Loader2, Trash2, Edit2, Check, X } from "lucide-react";
 
 interface Category {
@@ -16,6 +16,7 @@ interface Participant {
   teamName: string | null;
   categoryId: string;
   category: { name: string };
+  walkover: boolean;
 }
 
 export function ParticipantManager({
@@ -59,6 +60,14 @@ export function ParticipantManager({
     });
   };
 
+  const handleToggleWalkover = (id: string, name: string, currentWalkover: boolean) => {
+    const action = currentWalkover ? 'remove walkover status from' : 'mark as walkover for';
+    if (!confirm(`Are you sure you want to ${action} ${name}? ${!currentWalkover ? 'All their scheduled matches will be auto-resolved as walkover wins for opponents.' : 'Their walkover matches will be reset to scheduled.'}`)) return;
+    startTransition(async () => {
+      await toggleWalkover(id, tournamentId, !currentWalkover);
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Left Column: Import Form */}
@@ -97,6 +106,7 @@ export function ParticipantManager({
                   <tr className="border-b border-slate-200 text-sm font-bold text-slate-400 uppercase tracking-widest">
                     <th className="py-3 px-4">Name</th>
                     <th className="py-3 px-4">Team</th>
+                    <th className="py-3 px-4 text-center">Status</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -122,6 +132,9 @@ export function ParticipantManager({
                               placeholder="None"
                             />
                           </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="text-[10px] text-slate-400">-</span>
+                          </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button
@@ -143,12 +156,29 @@ export function ParticipantManager({
                         </>
                       ) : (
                         <>
-                          <td className="py-3 px-4 font-bold text-slate-800">{p.name}</td>
+                          <td className={`py-3 px-4 font-bold ${p.walkover ? 'text-red-400 line-through' : 'text-slate-800'}`}>{p.name}</td>
                           <td className="py-3 px-4 text-slate-500 font-medium">
                             {p.teamName || <span className="text-slate-300 italic">None</span>}
                           </td>
+                          <td className="py-3 px-4 text-center">
+                            {p.walkover ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-wider rounded-full">
+                                Walkover
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Active</span>
+                            )}
+                          </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleToggleWalkover(p.id, p.name, p.walkover)}
+                                disabled={isPending}
+                                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${p.walkover ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200' : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'}`}
+                                title={p.walkover ? 'Undo Walkover' : 'Mark as Walkover'}
+                              >
+                                {p.walkover ? 'Undo W/O' : 'W/O'}
+                              </button>
                               <button
                                 onClick={() => startEdit(p)}
                                 disabled={isPending}
