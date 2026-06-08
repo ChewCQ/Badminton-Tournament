@@ -10,10 +10,10 @@ export default async function LiveCourtController({
 }) {
   const { id } = await params;
 
-  // Fetch tournament for start date
+  // Fetch tournament for start date and slug
   const tournament = await prisma.tournament.findUnique({
     where: { id },
-    select: { startDate: true },
+    select: { startDate: true, slug: true },
   });
 
   // Fetch all physical courts
@@ -56,7 +56,7 @@ export default async function LiveCourtController({
       />
 
       {/* Umpire Scoring Links */}
-      <UmpireLinksPanel tournamentId={id} courts={courts} />
+      <UmpireLinksPanel tournamentId={tournament?.slug ?? id} courts={courts} />
     </div>
   );
 }

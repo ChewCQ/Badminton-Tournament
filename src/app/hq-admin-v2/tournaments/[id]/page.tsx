@@ -233,7 +233,7 @@ export default async function TournamentDetailsPage({
         {/* Right Column: Creation Form */}
         <div className="space-y-6">
 
-          <TournamentQRCode tournamentId={id} />
+          <TournamentQRCode tournamentId={tournament.slug} />
 
           <CreateCategoryForm tournamentId={tournament.id} />
         </div>

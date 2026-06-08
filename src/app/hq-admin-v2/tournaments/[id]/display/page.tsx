@@ -46,7 +46,7 @@ export default async function SponsorAndDisplayPage({
           </h1>
           
           <Link
-            href={`/tournaments/${id}/tv`}
+            href={`/tournaments/${tournament.slug}/tv`}
             target="_blank"
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-sm transition-all flex items-center gap-3 shadow-lg shadow-indigo-900/20 hover:shadow-indigo-500/20 hover:-translate-y-0.5"
           >
