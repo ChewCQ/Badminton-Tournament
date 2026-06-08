@@ -263,21 +263,15 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
               : selectedDetailMatch.status === 'IN_PROGRESS' ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
               : 'bg-gradient-to-r from-slate-700 to-slate-800'
             }`}>
-              <div className="absolute top-4 right-4 flex items-center gap-3">
-                {matchCodeMap.get(selectedDetailMatch.id) && (
-                  <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
-                    {matchCodeMap.get(selectedDetailMatch.id)}
-                  </span>
-                )}
-                <button 
-                  onClick={() => setSelectedDetailMatch(null)} 
-                  className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+              {/* Close button - always top right */}
+              <button 
+                onClick={() => setSelectedDetailMatch(null)} 
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
               
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5 pr-8">
                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black uppercase tracking-widest text-white/90">
                   {selectedDetailMatch.category.name}
                 </span>
@@ -286,10 +280,16 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                 </span>
               </div>
               
-              <h2 className="text-2xl font-black tracking-tight mt-2">Match Details</h2>
+              <h2 className="text-2xl font-black tracking-tight mt-2 mb-2">Match Details</h2>
               
-              {/* Status Badge */}
-              <div className="mt-3 flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-full w-max text-xs font-bold">
+              {/* Match code and Status Badge - flex wrap for mobile */}
+              <div className="flex flex-wrap items-center gap-2">
+                {matchCodeMap.get(selectedDetailMatch.id) && (
+                  <span className="bg-white/25 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-xs font-black tracking-wider border border-white/20 shadow-lg">
+                    {matchCodeMap.get(selectedDetailMatch.id)}
+                  </span>
+                )}
+                <div className="flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-full w-max text-xs font-bold">
                 {selectedDetailMatch.status === 'COMPLETED' && (
                   <><Trophy className="w-3.5 h-3.5" /> Completed</>
                 )}
@@ -443,17 +443,14 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white relative">
-              <div className="absolute top-4 right-4 flex items-center gap-3">
-                {matchCodeMap.get(futureDetailMatch.id) && (
-                  <span className="bg-white/25 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-black tracking-wider border border-white/20 shadow-lg">
-                    {matchCodeMap.get(futureDetailMatch.id)}
-                  </span>
-                )}
-                <button onClick={() => setFutureDetailMatch(null)} className="text-white/60 hover:text-white transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex items-center gap-2 mb-1.5">
+              <button 
+                onClick={() => setFutureDetailMatch(null)} 
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/60 hover:text-white transition-colors z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex flex-wrap items-center gap-2 mb-1.5 pr-8">
                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black uppercase tracking-widest text-white/90">
                   {futureDetailMatch.category.name}
                 </span>
@@ -461,7 +458,15 @@ export function BracketTree({ matches, tournamentId, readOnly = false }: { match
                   {getRoundName(futureDetailMatch.bracketRound ? futureDetailMatch.bracketRound - 1 : 0, columns.length)}
                 </span>
               </div>
-              <h2 className="text-xl font-black tracking-tight mt-1">Upcoming Match</h2>
+              <h2 className="text-xl font-black tracking-tight mt-1 mb-2">Upcoming Match</h2>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                {matchCodeMap.get(futureDetailMatch.id) && (
+                  <span className="bg-white/25 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-xs font-black tracking-wider border border-white/20 shadow-lg">
+                    {matchCodeMap.get(futureDetailMatch.id)}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Content */}
