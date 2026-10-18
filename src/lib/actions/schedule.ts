@@ -24,7 +24,7 @@ export async function reassignMatch(
         where: { id: matchId },
         data: { courtId: null, scheduledStartTime: null, scheduledEndTime: null },
       });
-      revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
+      await revalidateTournamentSchedule(tournamentId);
       return { success: true };
     }
 
@@ -154,7 +154,7 @@ export async function reassignMatch(
     // Run all updates in a transaction
     await prisma.$transaction(updates);
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
+    await revalidateTournamentSchedule(tournamentId);
     return { success: true };
   } catch (error) {
     console.error("Failed to reassign match:", error);
@@ -311,10 +311,38 @@ export async function globalAutoSchedule(tournamentId: string, categoryPriorityI
 
     await prisma.$transaction(updates);
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
+    await revalidateTournamentSchedule(tournamentId);
     return { success: true };
   } catch (error) {
     console.error("Failed global auto schedule:", error);
     return { success: false, error: "Failed to auto-schedule" };
   }
 }
+
+async function revalidateTournamentSchedule(tournamentId: string) {
+  try {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { slug: true }
+    });
+    const paths = [
+      `/hq-admin-v2/tournaments/${tournamentId}/courts`,
+      `/tournaments/${tournamentId}/schedule`,
+      `/tournaments/${tournamentId}/live`,
+      `/tournaments/${tournamentId}/tv`,
+    ];
+    if (tournament?.slug && tournament.slug !== tournamentId) {
+      paths.push(
+        `/tournaments/${tournament.slug}/schedule`,
+        `/tournaments/${tournament.slug}/live`,
+        `/tournaments/${tournament.slug}/tv`
+      );
+    }
+    for (const p of paths) {
+      revalidatePath(p);
+    }
+  } catch (e) {
+    console.error("Error revalidating tournament paths:", e);
+  }
+}
+

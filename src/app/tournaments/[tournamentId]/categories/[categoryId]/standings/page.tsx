@@ -14,7 +14,7 @@ export default async function CategoryStandingsPage({
     include: { tournament: true },
   });
 
-  if (!category || category.tournament.slug !== slug) {
+  if (!category || (category.tournament.slug !== slug && category.tournament.id !== slug)) {
     notFound();
   }
 

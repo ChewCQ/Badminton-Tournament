@@ -208,8 +208,30 @@ export async function toggleWalkover(participantId: string, tournamentId: string
       }
     });
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/participants`);
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { slug: true }
+    });
+    const slug = tournament?.slug;
+    const paths = [
+      `/hq-admin-v2/tournaments/${tournamentId}/participants`,
+      `/hq-admin-v2/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/schedule`,
+      `/tournaments/${tournamentId}/live`,
+      `/tournaments/${tournamentId}/tv`,
+    ];
+    if (slug && slug !== tournamentId) {
+      paths.push(
+        `/tournaments/${slug}/draws`,
+        `/tournaments/${slug}/schedule`,
+        `/tournaments/${slug}/live`,
+        `/tournaments/${slug}/tv`
+      );
+    }
+    for (const p of paths) {
+      revalidatePath(p);
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to toggle walkover:", error);

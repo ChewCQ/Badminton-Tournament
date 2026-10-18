@@ -16,8 +16,13 @@ export default async function PublicDrawsHub({
 }) {
   const { tournamentId } = await params;
 
-  const tournament = await prisma.tournament.findUnique({
-    where: { slug: tournamentId },
+  const tournament = await prisma.tournament.findFirst({
+    where: {
+      OR: [
+        { slug: tournamentId },
+        { id: tournamentId },
+      ],
+    },
     include: {
       sponsors: true,
       categories: {

@@ -18,7 +18,7 @@ export async function saveMatchScore(
   try {
     const match = await prisma.match.findUnique({
       where: { id: matchId },
-      include: { category: true }
+      include: { category: { include: { tournament: true } } }
     });
 
     if (!match) return { success: false, error: "Match not found" };
@@ -91,7 +91,30 @@ export async function saveMatchScore(
       }
     });
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}`);
+    const slug = match.category.tournament.slug;
+    const paths = [
+      `/hq-admin-v2/tournaments/${tournamentId}`,
+      `/tournaments/${tournamentId}`,
+      `/tournaments/${tournamentId}/schedule`,
+      `/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/draws/${match.categoryId}`,
+      `/tournaments/${tournamentId}/live`,
+      `/tournaments/${tournamentId}/tv`,
+    ];
+    if (slug && slug !== tournamentId) {
+      paths.push(
+        `/hq-admin-v2/tournaments/${slug}`,
+        `/tournaments/${slug}`,
+        `/tournaments/${slug}/schedule`,
+        `/tournaments/${slug}/draws`,
+        `/tournaments/${slug}/draws/${match.categoryId}`,
+        `/tournaments/${slug}/live`,
+        `/tournaments/${slug}/tv`
+      );
+    }
+    for (const p of paths) {
+      revalidatePath(p);
+    }
     return { success: true, winnerId, status: newStatus };
   } catch (error) {
     console.error("Failed to save match score:", error);
@@ -108,6 +131,7 @@ export async function markWalkover(
   try {
     const match = await prisma.match.findUnique({
       where: { id: matchId },
+      include: { category: { include: { tournament: true } } }
     });
 
     if (!match) return { success: false, error: "Match not found" };
@@ -132,7 +156,30 @@ export async function markWalkover(
       }
     });
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}`);
+    const slug = match.category.tournament.slug;
+    const paths = [
+      `/hq-admin-v2/tournaments/${tournamentId}`,
+      `/tournaments/${tournamentId}`,
+      `/tournaments/${tournamentId}/schedule`,
+      `/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/draws/${match.categoryId}`,
+      `/tournaments/${tournamentId}/live`,
+      `/tournaments/${tournamentId}/tv`,
+    ];
+    if (slug && slug !== tournamentId) {
+      paths.push(
+        `/hq-admin-v2/tournaments/${slug}`,
+        `/tournaments/${slug}`,
+        `/tournaments/${slug}/schedule`,
+        `/tournaments/${slug}/draws`,
+        `/tournaments/${slug}/draws/${match.categoryId}`,
+        `/tournaments/${slug}/live`,
+        `/tournaments/${slug}/tv`
+      );
+    }
+    for (const p of paths) {
+      revalidatePath(p);
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to mark walkover:", error);

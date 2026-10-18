@@ -32,7 +32,7 @@ export async function updateMatchTime(matchId: string, scheduledStartTime: Date,
       data: { scheduledStartTime, scheduledEndTime },
     });
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
+    await revalidateDrawPaths(tournamentId);
     revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/courts`);
     return { success: true };
   } catch (error) {
@@ -106,8 +106,7 @@ export async function swapParticipants(
     // Execute massive transaction
     await prisma.$transaction(updates);
 
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);
-    revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws/${categoryId}/bracket`);
+    await revalidateDrawPaths(tournamentId, categoryId);
     
     return { success: true };
   } catch (error) {
@@ -115,3 +114,38 @@ export async function swapParticipants(
     return { success: false, error: "Failed to swap participants" };
   }
 }
+
+async function revalidateDrawPaths(tournamentId: string, categoryId?: string) {
+  try {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { slug: true }
+    });
+    const paths = [
+      `/hq-admin-v2/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/draws`,
+      `/tournaments/${tournamentId}/schedule`,
+    ];
+    if (categoryId) {
+      paths.push(
+        `/hq-admin-v2/tournaments/${tournamentId}/draws/${categoryId}/bracket`,
+        `/tournaments/${tournamentId}/draws/${categoryId}`
+      );
+    }
+    if (tournament?.slug && tournament.slug !== tournamentId) {
+      paths.push(
+        `/tournaments/${tournament.slug}/draws`,
+        `/tournaments/${tournament.slug}/schedule`
+      );
+      if (categoryId) {
+        paths.push(`/tournaments/${tournament.slug}/draws/${categoryId}`);
+      }
+    }
+    for (const p of paths) {
+      revalidatePath(p);
+    }
+  } catch (e) {
+    console.error("Error revalidating draw paths:", e);
+  }
+}
+

@@ -14,8 +14,13 @@ export default async function PublicCategoryBracketPage({
 }) {
   const { tournamentId: slug, categoryId } = await params;
 
-  const tournamentRecord = await prisma.tournament.findUnique({
-    where: { slug },
+  const tournamentRecord = await prisma.tournament.findFirst({
+    where: {
+      OR: [
+        { slug },
+        { id: slug },
+      ],
+    },
     select: { id: true },
   });
   if (!tournamentRecord) notFound();

@@ -13,8 +13,13 @@ export default async function UmpireCourtPage({
 }) {
   const { tournamentId: slug, courtId } = await params;
 
-  const tournamentRecord = await prisma.tournament.findUnique({
-    where: { slug },
+  const tournamentRecord = await prisma.tournament.findFirst({
+    where: {
+      OR: [
+        { slug },
+        { id: slug },
+      ],
+    },
     select: { id: true },
   });
   if (!tournamentRecord) notFound();

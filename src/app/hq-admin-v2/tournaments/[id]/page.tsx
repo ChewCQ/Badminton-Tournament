@@ -155,14 +155,14 @@ export default async function TournamentDetailsPage({
                     ) : (
                       <div className="flex gap-2">
                         <Link
-                          href={`/tournaments/${tournament.id}/categories/${category.id}/bracket`}
+                          href={`/tournaments/${tournament.slug || tournament.id}/categories/${category.id}/bracket`}
                           className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors border border-zinc-700"
                         >
                           Bracket
                         </Link>
                         {(category.format === "ROUND_ROBIN" || category.format === "POOL_TO_BRACKET") && (
                           <Link
-                            href={`/tournaments/${tournament.id}/categories/${category.id}/standings`}
+                            href={`/tournaments/${tournament.slug || tournament.id}/categories/${category.id}/standings`}
                             className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors border border-zinc-700"
                           >
                             Standings
