@@ -20,9 +20,16 @@ export async function updateParticipantSeed(participantId: string, seed: number 
 
 export async function updateMatchTime(matchId: string, scheduledStartTime: Date, tournamentId: string) {
   try {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { estimatedMatchDurationMinutes: true }
+    });
+    const durationMins = tournament?.estimatedMatchDurationMinutes || 30;
+    const scheduledEndTime = new Date(scheduledStartTime.getTime() + durationMins * 60000);
+
     await prisma.match.update({
       where: { id: matchId },
-      data: { scheduledStartTime },
+      data: { scheduledStartTime, scheduledEndTime },
     });
 
     revalidatePath(`/hq-admin-v2/tournaments/${tournamentId}/draws`);

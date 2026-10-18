@@ -75,12 +75,37 @@ export function TimetableGrid({
     }
   });
 
+  // Split matches
+  const scheduledMatches = React.useMemo(() => {
+    return matches.filter(m => m.courtId && m.scheduledStartTime && m.scheduledEndTime);
+  }, [matches]);
+
+  // Any match that doesn't have a valid court or valid times belongs in the queue so it NEVER disappears
+  const queueMatches = React.useMemo(() => {
+    return matches.filter(m => !m.courtId || !m.scheduledStartTime || !m.scheduledEndTime);
+  }, [matches]);
+
   // Compute match codes: group matches by category and sort deterministically by draw structure
   const matchCodeMap = React.useMemo(() => {
     return generateMatchCodeMap(matches);
   }, [matches]);
+
+  // Determine timeline hours dynamically from scheduled matches
   const START_HOUR = 8;
-  const END_HOUR = 20;
+  const latestHour = React.useMemo(() => {
+    let maxH = 21; // At least 9 PM by default
+    for (const m of scheduledMatches) {
+      if (!m.scheduledEndTime) continue;
+      const d = new Date(m.scheduledEndTime);
+      const tStart = new Date(tournamentStartDate);
+      const diffDays = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - new Date(tStart.getFullYear(), tStart.getMonth(), tStart.getDate()).getTime()) / 86400000);
+      const h = (diffDays * 24) + d.getHours() + (d.getMinutes() > 0 ? 1 : 0);
+      if (h > maxH) maxH = h;
+    }
+    return maxH;
+  }, [scheduledMatches, tournamentStartDate]);
+
+  const END_HOUR = Math.max(22, latestHour + 1); // Extra buffer hour so late matches never clip
   const TOTAL_HOURS = END_HOUR - START_HOUR;
   const TOTAL_MINUTES = TOTAL_HOURS * 60;
   
@@ -91,15 +116,16 @@ export function TimetableGrid({
   // Generate hour markers
   const hourMarkers = Array.from({ length: TOTAL_HOURS + 1 }).map((_, i) => START_HOUR + i);
 
-  // Helper to calculate X position and width in pixels
-  // IMPORTANT: JavaScript Date.getHours() already returns LOCAL time.
-  // Do NOT manually apply timezoneOffset — that would double-convert!
+  // Helper to calculate X position and width in pixels with date offset support
   const getStyleForMatch = (start: Date, end: Date) => {
     const s = new Date(start);
     const e = new Date(end);
 
-    const startMinutes = (s.getHours() - START_HOUR) * 60 + s.getMinutes();
-    const durationMinutes = (e.getTime() - s.getTime()) / 60000;
+    const tStart = new Date(tournamentStartDate);
+    const diffDays = Math.floor((new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime() - new Date(tStart.getFullYear(), tStart.getMonth(), tStart.getDate()).getTime()) / 86400000);
+
+    const startMinutes = (diffDays * 24 * 60) + (s.getHours() - START_HOUR) * 60 + s.getMinutes();
+    const durationMinutes = Math.max(15, (e.getTime() - s.getTime()) / 60000);
 
     const leftPx = Math.max(0, startMinutes * PIXELS_PER_MINUTE);
     const widthPx = Math.max(40, durationMinutes * PIXELS_PER_MINUTE); // min 40px width
@@ -109,6 +135,32 @@ export function TimetableGrid({
       width: `${widthPx}px`,
     };
   };
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Multi-admin background sync: periodically refresh schedule so other admins' edits reflect live
+  useEffect(() => {
+    if (isReadOnly) return;
+    
+    const interval = setInterval(() => {
+      // Don't refresh if user is currently dragging, editing court name, or has a modal open
+      if (!isDragging && !isModalOpen && !selectedMatch && !detailMatch && !editingCourtId) {
+        router.refresh();
+      }
+    }, 6000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && !isDragging && !isModalOpen && !selectedMatch && !detailMatch && !editingCourtId) {
+        router.refresh();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [router, isReadOnly, isDragging, isModalOpen, selectedMatch, detailMatch, editingCourtId]);
 
   // Auto-scroll to the earliest match on mount
   useEffect(() => {
@@ -175,6 +227,7 @@ export function TimetableGrid({
 
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, matchId: string) => {
+    setIsDragging(true);
     e.dataTransfer.setData("matchId", matchId);
     
     // Crucial UX fix: calculate where the mouse grabbed the box relative to its left edge
@@ -192,6 +245,7 @@ export function TimetableGrid({
   };
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    setIsDragging(false);
     if (e.target instanceof HTMLElement) {
       e.target.style.opacity = "1";
     }
@@ -315,10 +369,6 @@ export function TimetableGrid({
     }
   };
 
-  // Split matches
-  const scheduledMatches = matches.filter(m => m.courtId && m.scheduledStartTime && m.scheduledEndTime);
-  const queueMatches = matches.filter(m => !m.courtId);
-
   return (
     <div className="flex flex-col xl:flex-row gap-6 relative">
       {/* Loading Overlay */}
@@ -430,6 +480,8 @@ export function TimetableGrid({
                     const h = START_HOUR + Math.floor(i / 4);
                     const m = (i % 4) * 15;
                     const leftPx = (h - START_HOUR) * 60 * PIXELS_PER_MINUTE + m * PIXELS_PER_MINUTE;
+                    const displayH = h % 24;
+                    const dayLabel = h >= 24 ? ` (+${Math.floor(h / 24)}d)` : '';
                     
                     if (m === 0) {
                       return (
@@ -438,7 +490,7 @@ export function TimetableGrid({
                           className="absolute top-0 bottom-0 border-l border-slate-300 pl-1.5 pt-1.5"
                           style={{ left: `${leftPx}px` }}
                         >
-                          <span className="text-[11px] font-black text-slate-600">{h}:00</span>
+                          <span className="text-[11px] font-black text-slate-600">{displayH}:00{dayLabel}</span>
                         </div>
                       );
                     } else {
@@ -493,6 +545,24 @@ export function TimetableGrid({
                         const catColor = getCategoryColor(match.category.id);
                         const isCompleted = match.status === 'COMPLETED' || match.status === 'WALKOVER';
 
+                        // Detect collision/overlap with another match on the same court
+                        const hasOverlap = courtMatches.some(other => 
+                          other.id !== match.id && 
+                          other.scheduledStartTime && other.scheduledEndTime &&
+                          new Date(other.scheduledStartTime).getTime() < new Date(match.scheduledEndTime!).getTime() &&
+                          new Date(other.scheduledEndTime).getTime() > new Date(match.scheduledStartTime!).getTime()
+                        );
+
+                        // If two matches have the exact same start time, stagger vertical alignment so both are visible and clickable
+                        const sameStartMatches = courtMatches.filter(other => 
+                          other.scheduledStartTime && match.scheduledStartTime &&
+                          new Date(other.scheduledStartTime).getTime() === new Date(match.scheduledStartTime!).getTime()
+                        );
+                        const sameStartIndex = sameStartMatches.findIndex(m => m.id === match.id);
+                        const verticalPos = sameStartMatches.length > 1 
+                          ? (sameStartIndex % 2 === 0 ? 'top-1 bottom-12' : 'top-12 bottom-1') 
+                          : 'top-2 bottom-2';
+
                         return (
                           <div
                             key={match.id}
@@ -513,7 +583,9 @@ export function TimetableGrid({
                                 setDetailMatch(match);
                               }
                             } : undefined}
-                            className={`absolute top-2 bottom-2 rounded-lg shadow-sm border-y border-r border-l-[6px] px-2 py-1.5 overflow-hidden z-10 transition-all
+                            className={`absolute rounded-lg shadow-sm border-y border-r border-l-[6px] px-2 py-1.5 overflow-hidden z-10 transition-all
+                              ${verticalPos}
+                              ${hasOverlap ? 'ring-2 ring-red-500/80 shadow-red-200' : ''}
                               ${isReadOnly ? '' : 'cursor-grab active:cursor-grabbing hover:shadow-md'}
                               ${catColor}
                               ${isCompleted ? 'bg-slate-50 border-y-slate-200 border-r-slate-200 opacity-80' : 'bg-white border-y-slate-200 border-r-slate-200 hover:bg-slate-50'}
@@ -521,8 +593,15 @@ export function TimetableGrid({
                             style={style}
                             title={isReadOnly ? match.category.name : "Double-click to enter score"}
                           >
-                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate mb-1">
-                              {match.category.name} • {getShortRoundName(match)}
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">
+                                {match.category.name} • {getShortRoundName(match)}
+                              </div>
+                              {hasOverlap && (
+                                <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded shadow shrink-0 animate-pulse">
+                                  OVERLAP
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs font-bold text-slate-800 truncate leading-tight">
                               {getPlayerLabel(match.participant1, match)}

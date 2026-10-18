@@ -78,13 +78,31 @@ export async function reassignMatch(
       }
     }
 
+    // 3. Check if there is an overlapping match that started BEFORE drop time but extends past it
+    const overlappingPreceding = await prisma.match.findFirst({
+      where: {
+        courtId,
+        id: { not: matchId },
+        scheduledStartTime: { lt: scheduledStartTime },
+        scheduledEndTime: { gt: scheduledStartTime },
+        status: { in: ['SCHEDULED', 'IN_PROGRESS'] }
+      },
+      orderBy: { scheduledEndTime: 'desc' }
+    });
+
+    let effectiveStartTime = scheduledStartTime;
+    if (overlappingPreceding?.scheduledEndTime) {
+      effectiveStartTime = overlappingPreceding.scheduledEndTime;
+    }
+    const effectiveEndTime = new Date(effectiveStartTime.getTime() + durationMins * 60000);
+
     // Execute Ripple Shift (Squeeze).
-    // Get all matches on the target court that start AT OR AFTER the drop time
+    // Get all matches on the target court that start AT OR AFTER the effective drop time
     const existingMatches = await prisma.match.findMany({
       where: { 
         courtId,
         id: { not: matchId }, // Exclude the match we are dragging
-        scheduledStartTime: { gte: scheduledStartTime },
+        scheduledStartTime: { gte: effectiveStartTime },
         status: { in: ['SCHEDULED', 'IN_PROGRESS'] } 
       },
       orderBy: { scheduledStartTime: 'asc' }
@@ -97,19 +115,19 @@ export async function reassignMatch(
     updates.push(
       prisma.match.update({
         where: { id: matchId },
-        data: { courtId, scheduledStartTime, scheduledEndTime }
+        data: { courtId, scheduledStartTime: effectiveStartTime, scheduledEndTime: effectiveEndTime }
       })
     );
 
     // Now ripple shift subsequent matches if they overlap
-    let currentEndTimeMs = scheduledEndTime.getTime();
+    let currentEndTimeMs = effectiveEndTime.getTime();
 
     for (const match of existingMatches) {
       if (!match.scheduledStartTime || !match.scheduledEndTime) continue;
       
       const mStartMs = match.scheduledStartTime.getTime();
       const mEndMs = match.scheduledEndTime.getTime();
-      const mDurationMs = mEndMs - mStartMs;
+      const mDurationMs = Math.max(durationMins * 60000, mEndMs - mStartMs);
 
       // If this match starts before the previous match ends (Overlap!)
       if (mStartMs < currentEndTimeMs) {
