@@ -7,6 +7,7 @@ import Link from "next/link";
 import { LocalTime } from "@/components/LocalTime";
 
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { SponsorCard } from "@/components/SponsorCard";
 
 export const revalidate = 300; // Cache for 5 minutes to reduce DB network transfer
 
@@ -281,17 +282,7 @@ export default async function PublicTournamentOverview({
                   
                   <div className="flex flex-wrap justify-center gap-8 md:gap-12 items-center">
                     {sponsors.map(sponsor => (
-                      <div key={sponsor.id} className="flex flex-col items-center gap-4">
-                        <div className="relative w-48 h-28 sm:w-72 sm:h-40 md:w-80 md:h-48 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow group">
-                          <Image 
-                            src={sponsor.logoUrl} 
-                            alt={sponsor.name} 
-                            fill 
-                            className="object-contain p-3 group-hover:scale-105 transition-transform" 
-                          />
-                        </div>
-                        <span className="text-xs sm:text-sm font-bold text-slate-500 text-center max-w-[200px] truncate">{sponsor.name}</span>
-                      </div>
+                      <SponsorCard key={sponsor.id} sponsor={sponsor} />
                     ))}
                   </div>
                 </div>

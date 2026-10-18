@@ -3,12 +3,18 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function createSponsor(tournamentId: string, data: { name: string; logoUrl: string; tier?: string }) {
+export async function createSponsor(tournamentId: string, data: { name: string; logoUrl: string; tier?: string; websiteUrl?: string }) {
   try {
+    let cleanUrl = data.websiteUrl?.trim() || null;
+    if (cleanUrl && !cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
+
     await prisma.sponsor.create({
       data: {
         name: data.name,
         logoUrl: data.logoUrl,
+        websiteUrl: cleanUrl,
         tier: data.tier || "STANDARD",
         tournamentId,
       },

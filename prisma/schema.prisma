@@ -90,12 +90,13 @@ model Tournament {
 // ──────────────────────────────────────────────────────────────────────────────
 
 model Sponsor {
-  id        String   @id @default(cuid())
-  name      String
-  logoUrl   String
-  tier      String   @default("STANDARD")
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  logoUrl    String
+  websiteUrl String?
+  tier       String   @default("STANDARD")
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
 
   tournamentId String
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)

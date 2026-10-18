@@ -15,6 +15,7 @@ export function CreateSponsorForm({ tournamentId }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [tier, setTier] = useState("Main Sponsor");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,10 +51,16 @@ export function CreateSponsorForm({ tournamentId }: Props) {
     }
     
     startTransition(async () => {
-      const res = await createSponsor(tournamentId, { name, logoUrl, tier: tier || "Sponsor" });
+      const res = await createSponsor(tournamentId, { 
+        name, 
+        logoUrl, 
+        websiteUrl: websiteUrl.trim() || undefined,
+        tier: tier || "Sponsor" 
+      });
       if (res.success) {
         setName("");
         setLogoUrl("");
+        setWebsiteUrl("");
         setTier("Main Sponsor");
       } else {
         alert(res.error);
@@ -73,6 +80,17 @@ export function CreateSponsorForm({ tournamentId }: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Yonex, Red Bull"
+            className="w-full bg-zinc-950 border border-zinc-800 text-zinc-100 px-4 py-3 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Website URL (Optional)</label>
+          <input 
+            type="url" 
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+            placeholder="e.g. https://www.yonex.com"
             className="w-full bg-zinc-950 border border-zinc-800 text-zinc-100 px-4 py-3 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
           />
         </div>

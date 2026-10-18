@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { GitMerge, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { getCategoryTheme } from "@/lib/utils/colors";
+import { SponsorCard } from "@/components/SponsorCard";
 
 export const revalidate = 300; // Cache for 5 minutes to reduce DB network transfer
 
@@ -49,27 +51,37 @@ export default async function PublicDrawsHub({
             No categories have been created yet.
           </div>
         ) : (
-          tournament.categories.map(category => (
-            <Link 
-              key={category.id} 
-              href={`/tournaments/${tournamentId}/draws/${category.id}`}
-              className="group block bg-white border border-slate-200 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
-                    {category.name}
-                  </h2>
-                  <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">
-                    {category._count.participants} Participants • {category.type.replace('_', ' ')}
-                  </p>
+          tournament.categories.map((category, idx) => {
+            const theme = getCategoryTheme(category.id, idx);
+            return (
+              <Link 
+                key={category.id} 
+                href={`/tournaments/${tournamentId}/draws/${category.id}`}
+                className={`group block bg-white border border-slate-200 border-l-[6px] ${theme.borderL} rounded-2xl p-5 hover:border-slate-300 hover:shadow-md transition-all`}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full ${theme.dot}`} />
+                      <h2 className="text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors">
+                        {category.name}
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">
+                      <span>{category._count.participants} Participants</span>
+                      <span>•</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest ${theme.badge}`}>
+                        {category.type.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-slate-100 flex items-center justify-center transition-colors">
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700" />
+                  </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600" />
-                </div>
-              </div>
-            </Link>
-          ))
+              </Link>
+            );
+          })
         )}
       </div>
 
@@ -79,17 +91,7 @@ export default async function PublicDrawsHub({
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-center mb-4">Sponsored By</p>
           <div className="flex flex-wrap justify-center gap-6 items-center">
             {tournament.sponsors.map(sponsor => (
-              <div key={sponsor.id} className="flex items-center gap-3">
-                <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-white border border-slate-100 shadow-sm shrink-0">
-                  <Image 
-                    src={sponsor.logoUrl} 
-                    alt={sponsor.name} 
-                    fill 
-                    className="object-contain p-1" 
-                  />
-                </div>
-                <span className="text-xs font-bold text-slate-500">{sponsor.name}</span>
-              </div>
+              <SponsorCard key={sponsor.id} sponsor={sponsor} compact={true} />
             ))}
           </div>
         </div>
